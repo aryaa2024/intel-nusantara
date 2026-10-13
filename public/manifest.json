@@ -1,0 +1,17 @@
+{
+  "name": "INTEL NUSANTARA - Monitoring | Analysis | Daily Logbook",
+  "short_name": "IntelNusantara",
+  "description": "SOC Standard Intel Command, Monitoring, Daily Logbook, OSINT Profiling & AI Threat Analysis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070c",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
