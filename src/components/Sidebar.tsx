@@ -9,11 +9,13 @@ import {
   User as UserIcon,
   Activity,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Users,
+  Crown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export type ActiveTab = 'dashboard' | 'logbook' | 'osint' | 'ai-analysis';
+export type ActiveTab = 'dashboard' | 'logbook' | 'osint' | 'ai-analysis' | 'users';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -62,7 +64,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Cpu,
       badge: 'NEURAL AI',
       badgeColor: 'bg-cyan-950 text-cyan-400 border-cyan-800/60'
-    }
+    },
+    ...(currentUser?.role === 'ADMIN' ? [{
+      id: 'users' as ActiveTab,
+      label: 'Admin User Management',
+      shortLabel: 'User Management',
+      icon: Users,
+      badge: 'ADMIN ONLY',
+      badgeColor: 'bg-amber-950 text-amber-300 border-amber-600/70 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+    }] : [])
   ];
 
   const handleSelect = (tab: ActiveTab) => {

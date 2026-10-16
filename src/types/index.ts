@@ -2,7 +2,7 @@
 
 export type ClearanceLevel = 'TOP SECRET' | 'SECRET' | 'CONFIDENTIAL' | 'RESTRICTED';
 
-export type OperatorRole = 'COMMANDER' | 'INTEL_ANALYST' | 'CYBER_OPERATOR' | 'FIELD_AGENT';
+export type OperatorRole = 'ADMIN' | 'OPERATOR' | 'COMMANDER' | 'INTEL_ANALYST' | 'CYBER_OPERATOR' | 'FIELD_AGENT';
 
 export interface User {
   id: string;
@@ -13,6 +13,7 @@ export interface User {
   clearanceLevel: ClearanceLevel;
   unit: string;
   lastLogin: string;
+  isOnline?: boolean;
 }
 
 export type SeverityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';

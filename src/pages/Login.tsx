@@ -29,9 +29,10 @@ export const Login: React.FC = () => {
   const [regPassword, setRegPassword] = useState('');
   const [regCallsign, setRegCallsign] = useState('');
   const [regBadge, setRegBadge] = useState('');
-  const [regRole, setRegRole] = useState<OperatorRole>('CYBER_OPERATOR');
+  const [regRole, setRegRole] = useState<OperatorRole>('OPERATOR');
   const [regClearance, setRegClearance] = useState<ClearanceLevel>('TOP SECRET');
   const [regUnit, setRegUnit] = useState('Pusat Operasi Intelijen Siber Nusantara');
+  const [regPin, setRegPin] = useState('');
 
   // Status feedback
   const [errorMessage, setErrorMessage] = useState('');
@@ -55,7 +56,7 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleQuickDemoLogin = async (demoUser: 'garuda01' | 'analyst') => {
+  const handleQuickDemoLogin = async (demoUser: 'arya' | 'garuda01' | 'analyst') => {
     setErrorMessage('');
     setIsLoading(true);
     await login(demoUser, 'intelpassword');
@@ -74,6 +75,12 @@ export const Login: React.FC = () => {
       return;
     }
 
+    if (!regPin.trim()) {
+      setErrorMessage('PIN Otentikasi Pendaftaran wajib diisi.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const result = await register({
         username: regUsername,
@@ -82,7 +89,8 @@ export const Login: React.FC = () => {
         badgeNumber: regBadge,
         role: regRole,
         clearanceLevel: regClearance,
-        unit: regUnit
+        unit: regUnit,
+        pin: regPin
       });
 
       if (!result.success) {
@@ -176,9 +184,9 @@ export const Login: React.FC = () => {
         <div className="p-6">
           {/* Error Notification */}
           {errorMessage && (
-            <div className="mb-5 p-3 rounded-xl bg-red-950/60 border border-red-600/70 text-red-200 text-xs font-mono flex items-start gap-2 shadow-glow-red">
+            <div className="mb-5 p-3 rounded-xl bg-red-950/60 border border-red-600/70 text-red-200 text-xs font-mono flex items-start gap-2 shadow-glow-red animate-fadeIn">
               <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <span>{errorMessage}</span>
+              <span className="font-bold">{errorMessage}</span>
             </div>
           )}
 
@@ -196,7 +204,7 @@ export const Login: React.FC = () => {
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                   <span>ID Operator / Username</span>
-                  <span className="text-[10px] text-zinc-500">Contoh: garuda01</span>
+                  <span className="text-[10px] text-zinc-500">Contoh: arya / garuda01</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
@@ -207,7 +215,7 @@ export const Login: React.FC = () => {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Masukkan ID Operator"
+                    placeholder="Masukkan ID Operator / Admin"
                     className="w-full pl-10 pr-4 py-2.5 bg-black/60 border border-zinc-700/80 rounded-xl text-zinc-100 placeholder-zinc-600 text-xs focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors"
                   />
                 </div>
@@ -252,13 +260,25 @@ export const Login: React.FC = () => {
                 )}
               </button>
 
-              {/* Quick Demo Operator Buttons */}
+              {/* Quick Demo Operator Buttons (Arya ADMIN, Garuda-01, Analyst) */}
               <div className="pt-4 mt-4 border-t border-zinc-800/80">
                 <p className="text-[11px] text-zinc-400 mb-2 font-mono flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>AKSES CEPAT DEMO OPERATOR:</span>
+                  <span>AKSES CEPAT DEMO OTORISASI:</span>
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoLogin('arya')}
+                    className="p-2.5 rounded-lg bg-zinc-900/90 border border-amber-600/60 hover:border-amber-500 text-left transition-colors group shadow-sm"
+                  >
+                    <div className="text-[11px] font-bold text-amber-400 group-hover:text-amber-300 flex items-center justify-between">
+                      <span>ARYA (ADMIN)</span>
+                      <span className="text-[8px] px-1 bg-amber-950 text-amber-300 border border-amber-700/60 rounded font-black">ADMIN</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-400 mt-0.5">Pass: intelpassword</div>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => handleQuickDemoLogin('garuda01')}
@@ -266,9 +286,9 @@ export const Login: React.FC = () => {
                   >
                     <div className="text-[11px] font-bold text-white group-hover:text-red-400 flex items-center justify-between">
                       <span>GARUDA-01</span>
-                      <span className="text-[9px] px-1 bg-red-950 text-red-300 rounded">COMMANDER</span>
+                      <span className="text-[8px] px-1 bg-red-950 text-red-300 rounded font-bold">OPERATOR</span>
                     </div>
-                    <div className="text-[10px] text-zinc-500">Pass: intelpassword</div>
+                    <div className="text-[10px] text-zinc-400 mt-0.5">Pass: intelpassword</div>
                   </button>
 
                   <button
@@ -278,22 +298,46 @@ export const Login: React.FC = () => {
                   >
                     <div className="text-[11px] font-bold text-white group-hover:text-cyan-400 flex items-center justify-between">
                       <span>MERPATI-07</span>
-                      <span className="text-[9px] px-1 bg-cyan-950 text-cyan-300 rounded">ANALYST</span>
+                      <span className="text-[8px] px-1 bg-cyan-950 text-cyan-300 rounded font-bold">ANALYST</span>
                     </div>
-                    <div className="text-[10px] text-zinc-500">Pass: intelpassword</div>
+                    <div className="text-[10px] text-zinc-400 mt-0.5">Pass: intelpassword</div>
                   </button>
                 </div>
               </div>
             </form>
           )}
 
-          {/* TAB 2: REGISTER */}
+          {/* TAB 2: REGISTER DENGAN PIN OTENTIKASI WAJIB (9087) */}
           {tab === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="space-y-3 font-mono text-xs">
+              
+              {/* Field Wajib: PIN Otentikasi Pendaftaran */}
+              <div className="p-3.5 rounded-xl bg-red-950/30 border border-red-700/60 space-y-1.5 shadow-inner">
+                <label className="block text-[11px] font-bold text-red-300 uppercase tracking-wider flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-red-500" />
+                    PIN Otentikasi Pendaftaran *
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-mono">Wajib Kode Otorisasi</span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  maxLength={10}
+                  value={regPin}
+                  onChange={(e) => setRegPin(e.target.value)}
+                  placeholder="Masukkan 4 digit PIN Otorisasi (Contoh: 9087)"
+                  className="w-full px-3 py-2 bg-black/80 border border-red-700/80 rounded-lg text-zinc-100 placeholder-zinc-500 text-xs focus:outline-none focus:border-red-500 font-mono tracking-widest"
+                />
+                <p className="text-[10px] text-zinc-400 font-mono">
+                  * Registrasi personel intelijen baru mewajibkan otentikasi PIN resmi dari Markas Komando.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-zinc-300 uppercase tracking-wider mb-1">
-                    Username / Login ID
+                    Username / Login ID *
                   </label>
                   <input
                     type="text"
@@ -306,7 +350,7 @@ export const Login: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-[11px] font-semibold text-zinc-300 uppercase tracking-wider mb-1">
-                    Passcode Otorisasi
+                    Passcode Otorisasi *
                   </label>
                   <input
                     type="password"
@@ -322,7 +366,7 @@ export const Login: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-zinc-300 uppercase tracking-wider mb-1">
-                    Callsign Personel
+                    Callsign Personel *
                   </label>
                   <input
                     type="text"
@@ -335,7 +379,7 @@ export const Login: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-[11px] font-semibold text-zinc-300 uppercase tracking-wider mb-1">
-                    Nomor Badge Intel
+                    Nomor Badge Intel *
                   </label>
                   <input
                     type="text"
@@ -356,12 +400,12 @@ export const Login: React.FC = () => {
                   <select
                     value={regRole}
                     onChange={(e) => setRegRole(e.target.value as OperatorRole)}
-                    className="w-full px-3 py-2 bg-black/60 border border-zinc-700/80 rounded-xl text-zinc-100 focus:outline-none focus:border-red-600"
+                    className="w-full px-3 py-2 bg-black/60 border border-zinc-700/80 rounded-xl text-zinc-100 focus:outline-none focus:border-red-600 font-bold"
                   >
+                    <option value="OPERATOR">OPERATOR (Pengguna Biasa)</option>
+                    <option value="ADMIN">ADMIN (Hak Akses Penuh)</option>
                     <option value="COMMANDER">COMMANDER</option>
                     <option value="INTEL_ANALYST">INTEL ANALYST</option>
-                    <option value="CYBER_OPERATOR">CYBER OPERATOR</option>
-                    <option value="FIELD_AGENT">FIELD AGENT</option>
                   </select>
                 </div>
 

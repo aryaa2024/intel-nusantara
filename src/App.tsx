@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { DailyLogbook } from './pages/DailyLogbook';
 import { TargetProfiling } from './pages/TargetProfiling';
 import { AIThreatAnalysis } from './pages/AIThreatAnalysis';
+import { UserManagement } from './pages/UserManagement';
 import { NewsItem, LogEntry } from './types';
 
 const MainLayout: React.FC = () => {
@@ -95,6 +96,10 @@ const MainLayout: React.FC = () => {
               onClearInitialQuery={() => setAiInitialQuery('')}
               onEscalateToLogbook={handleEscalateToLogbook}
             />
+          )}
+
+          {activeTab === 'users' && (
+            <UserManagement />
           )}
         </main>
       </div>
