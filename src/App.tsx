@@ -29,8 +29,11 @@ const MainLayout: React.FC = () => {
       title: `[Eskalasi Feed] ${news.title}`,
       description: `Sumber: ${news.source}\nWilayah: ${news.region}\n\nRingkasan Berita:\n${news.summary}`,
       severity: news.threatLevel,
-      category: news.category === 'CYBER' ? 'MALWARE_ANALYSIS' : 
-                news.category === 'INFRASTRUKTUR' ? 'NETWORK_INTRUSION' : 'DISINFORMATION'
+      category: (news.category === 'Cyber' || news.category === 'CYBER') ? 'MALWARE_ANALYSIS' : 
+                news.category === 'Keamanan' ? 'PHYSICAL_SECURITY' :
+                news.category === 'Bencana' ? 'PHYSICAL_SECURITY' :
+                news.category === 'Politik' ? 'DISINFORMATION' :
+                news.category === 'INFRASTRUKTUR' ? 'NETWORK_INTRUSION' : 'NETWORK_INTRUSION'
     });
     setActiveTab('logbook');
   };
