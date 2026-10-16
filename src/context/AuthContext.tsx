@@ -32,56 +32,20 @@ export const REGISTRATION_SECURITY_PIN = '9087';
 const DEFAULT_OPERATORS: (User & { passwordHash: string })[] = [
   {
     id: 'op-admin-01',
-    username: 'arya',
-    passwordHash: 'intelpassword',
-    callsign: 'ARYA-KOMANDO',
+    username: 'Aryaa',
+    passwordHash: '489147',
+    callsign: 'ARYAA-KOMANDO',
     badgeNumber: 'ADM-001',
     role: 'ADMIN',
     clearanceLevel: 'TOP SECRET',
     unit: 'Markas Komando Pusat & Administrasi Intel Nusantara',
-    lastLogin: '17/10/2026 00:05 WIB',
-    isOnline: false
-  },
-  {
-    id: 'op-001',
-    username: 'garuda01',
-    passwordHash: 'intelpassword',
-    callsign: 'GARUDA-01',
-    badgeNumber: 'IN-8890',
-    role: 'OPERATOR',
-    clearanceLevel: 'TOP SECRET',
-    unit: 'Nusantara Cyber Command & SOC',
-    lastLogin: '16/10/2026 23:45 WIB',
-    isOnline: false
-  },
-  {
-    id: 'op-002',
-    username: 'analyst',
-    passwordHash: 'intelpassword',
-    callsign: 'MERPATI-07',
-    badgeNumber: 'IN-4421',
-    role: 'OPERATOR',
-    clearanceLevel: 'SECRET',
-    unit: 'Direktorat Analisis & Kontra-Intelijen',
-    lastLogin: '16/10/2026 18:30 WIB',
-    isOnline: false
-  },
-  {
-    id: 'op-003',
-    username: 'badak04',
-    passwordHash: 'intelpassword',
-    callsign: 'BADAK-04',
-    badgeNumber: 'IN-7714',
-    role: 'OPERATOR',
-    clearanceLevel: 'CONFIDENTIAL',
-    unit: 'Satgas Patroli Siber Pesisir & Maritim',
-    lastLogin: '15/10/2026 14:15 WIB',
+    lastLogin: '17/10/2026 00:00 WIB',
     isOnline: false
   }
 ];
 
-const STORAGE_USERS_KEY = 'intel_registered_operators_v2';
-const STORAGE_CURRENT_USER_KEY = 'intel_active_session_v2';
+const STORAGE_USERS_KEY = 'intel_registered_operators_v3';
+const STORAGE_CURRENT_USER_KEY = 'intel_active_session_v3';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -93,19 +57,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  // Pastikan akun awal tersimpan di storage
+  // Pastikan akun awal tersimpan di storage dan akun Admin Aryaa selalu terdaftar dengan kredensial resmi
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_USERS_KEY);
       if (!stored) {
-        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(DEFAULT_OPERATORS));
-      } else {
-        // Pastikan akun Arya ADMIN ada di storage jika pengguna punya storage lama
-        const parsed: (User & { passwordHash: string })[] = JSON.parse(stored);
-        if (!parsed.some(u => u.username.toLowerCase() === 'arya')) {
-          parsed.unshift(DEFAULT_OPERATORS[0]);
-          localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(parsed));
+        // Cek apakah ada data dari versi sebelumnya untuk di-migrasi
+        const prevStored = localStorage.getItem('intel_registered_operators_v2');
+        let initialList = [...DEFAULT_OPERATORS];
+        if (prevStored) {
+          try {
+            const oldUsers: (User & { passwordHash: string })[] = JSON.parse(prevStored);
+            // Ambil user registrasi operator riil (bukan user demo bawaan)
+            const customUsers = oldUsers.filter(u => 
+              !['arya', 'garuda01', 'analyst', 'badak04'].includes(u.username.toLowerCase())
+            );
+            initialList = [DEFAULT_OPERATORS[0], ...customUsers];
+          } catch {
+            initialList = [...DEFAULT_OPERATORS];
+          }
         }
+        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(initialList));
+      } else {
+        const parsed: (User & { passwordHash: string })[] = JSON.parse(stored);
+        const aryaaIndex = parsed.findIndex(u => u.username.toLowerCase() === 'aryaa' || u.username.toLowerCase() === 'arya');
+        if (aryaaIndex === -1) {
+          parsed.unshift(DEFAULT_OPERATORS[0]);
+        } else {
+          // Pastikan admin Aryaa selalu terkonfigurasi dengan role ADMIN dan password 489147
+          parsed[aryaaIndex] = {
+            ...parsed[aryaaIndex],
+            username: 'Aryaa',
+            passwordHash: '489147',
+            callsign: 'ARYAA-KOMANDO',
+            role: 'ADMIN',
+            clearanceLevel: 'TOP SECRET'
+          };
+        }
+        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(parsed));
       }
     } catch (e) {
       console.error('Error initializing operators storage', e);
@@ -114,17 +103,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const rawUsers = localStorage.getItem(STORAGE_USERS_KEY);
-      const users: (User & { passwordHash: string })[] = rawUsers ? JSON.parse(rawUsers) : DEFAULT_OPERATORS;
-      
-      const foundIndex = users.findIndex(u => u.username.toLowerCase() === username.trim().toLowerCase());
-      if (foundIndex === -1) {
-        return { success: false, error: 'Identitas Personel tidak ditemukan dalam database Intelijen.' };
-      }
+      const cleanUser = username.trim();
+      const cleanPass = pass.trim();
 
-      const found = users[foundIndex];
-      if (found.passwordHash !== pass) {
-        return { success: false, error: 'Kredensial Otorisasi / Passcode ditolak.' };
+      const rawUsers = localStorage.getItem(STORAGE_USERS_KEY);
+      const users: (User & { passwordHash: string })[] = rawUsers ? JSON.parse(rawUsers) : [...DEFAULT_OPERATORS];
+      
+      let foundIndex = users.findIndex(u => u.username.toLowerCase() === cleanUser.toLowerCase());
+      
+      // Verifikasi khusus untuk akun Admin Aryaa
+      if (cleanUser.toLowerCase() === 'aryaa') {
+        if (cleanPass !== '489147') {
+          return { success: false, error: 'Passcode otorisasi salah. Verifikasi gagal.' };
+        }
+        if (foundIndex === -1) {
+          users.unshift(DEFAULT_OPERATORS[0]);
+          foundIndex = 0;
+        } else {
+          users[foundIndex] = {
+            ...users[foundIndex],
+            username: 'Aryaa',
+            passwordHash: '489147',
+            role: 'ADMIN',
+            clearanceLevel: 'TOP SECRET'
+          };
+        }
+      } else {
+        if (foundIndex === -1) {
+          return { success: false, error: 'Identitas Personel tidak ditemukan dalam database Intelijen.' };
+        }
+        const found = users[foundIndex];
+        if (found.passwordHash !== cleanPass) {
+          return { success: false, error: 'Kredensial Otorisasi / Passcode ditolak.' };
+        }
       }
 
       const nowStr = new Intl.DateTimeFormat('id-ID', {
@@ -136,14 +147,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       users[foundIndex].lastLogin = nowStr;
       localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
 
+      const authenticatedUser = users[foundIndex];
       const updatedUser: User = {
-        id: found.id,
-        username: found.username,
-        callsign: found.callsign,
-        badgeNumber: found.badgeNumber,
-        role: found.role,
-        clearanceLevel: found.clearanceLevel,
-        unit: found.unit,
+        id: authenticatedUser.id,
+        username: authenticatedUser.username,
+        callsign: authenticatedUser.callsign,
+        badgeNumber: authenticatedUser.badgeNumber,
+        role: authenticatedUser.role,
+        clearanceLevel: authenticatedUser.clearanceLevel,
+        unit: authenticatedUser.unit,
         lastLogin: nowStr,
         isOnline: true
       };

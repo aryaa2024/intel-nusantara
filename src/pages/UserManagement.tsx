@@ -60,7 +60,7 @@ export const UserManagement: React.FC = () => {
             AKSES DITOLAK // RESTRICTED ADMIN ZONE
           </h2>
           <p className="text-xs text-red-300 max-w-md mx-auto leading-relaxed">
-            Modul <span className="font-bold underline">User Management & Kendali Personel</span> hanya dapat diakses oleh Akun dengan Role <span className="font-bold text-white">ADMIN</span> (Otoritas Utama: Arya).
+            Modul <span className="font-bold underline">User Management & Kendali Personel</span> hanya dapat diakses oleh Akun dengan Role <span className="font-bold text-white">ADMIN</span> (Otoritas Utama: Aryaa).
           </p>
           <div className="pt-2 text-[11px] text-zinc-500">
             Sesi Personel Saat Ini: <span className="text-zinc-200">{currentUser?.callsign}</span> (Role: {currentUser?.role})
@@ -300,7 +300,7 @@ export const UserManagement: React.FC = () => {
             className="px-3 py-2 bg-black/60 border border-zinc-700/80 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500 font-bold"
           >
             <option value="ALL">SEMUA ROLE</option>
-            <option value="ADMIN">ADMIN (ARYA)</option>
+            <option value="ADMIN">ADMIN</option>
             <option value="OPERATOR">OPERATOR</option>
           </select>
         </div>
