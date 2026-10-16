@@ -72,16 +72,25 @@ export interface NewsItem {
   tags?: string[];
 }
 
+export type TargetStatus = 'UNKNOWN' | 'UNDER WATCH' | 'HIGH PRIORITY' | 'CLEARED' | 'ACTIVE_MONITORING' | 'TARGET_IDENTIFIED' | 'DORMANT' | 'NEUTRALIZED';
+
 export interface TargetProfile {
   id: string;
-  codeName: string;
-  alias: string;
-  classification: ClearanceLevel;
+  fullNameOrAlias: string; // Nama Lengkap / Alias
+  codeName?: string;
+  nik: string; // NIK / No Identitas
+  phoneNumber: string; // No HP
+  imei: string; // IMEI Perangkat
+  lastKnownAddress: string; // Alamat Terakhir
+  email: string; // Email
+  photoUrl?: string; // Foto Target (URL atau Data URL)
+  status: TargetStatus;
   threatLevel: SeverityLevel;
-  category: 'CYBER_THREAT_ACTOR' | 'ESPIONAGE_CELL' | 'EXTREMIST_GROUP' | 'FRAUD_NETWORK';
-  status: 'ACTIVE_MONITORING' | 'TARGET_IDENTIFIED' | 'DORMANT' | 'NEUTRALIZED';
-  lastSeenLocation: string;
-  digitalFootprint: {
+  classification: ClearanceLevel;
+  category?: string;
+  digitalFootprint?: {
+    connectedPlatforms?: string[];
+    dataBreaches?: string[];
     ipAddresses?: string[];
     socialHandles?: string[];
     cryptocurrencyWallets?: string[];
@@ -89,6 +98,17 @@ export interface TargetProfile {
   };
   notes: string;
   updatedAt: string;
+  createdAt?: string;
+}
+
+export interface InstitutionalApiConfig {
+  gatewayName: string;
+  endpointUrl: string;
+  apiKey: string;
+  provider: 'DUKCAPIL_SECURE_GATEWAY' | 'TELCO_BTS_TRIANGULATION' | 'IMIGRASI_BORDER_CONTROL' | 'BSSN_THREAT_INTEL' | 'CUSTOM_API';
+  status: 'READY' | 'CONNECTED' | 'DISCONNECTED' | 'SYNCING';
+  lastPingMs?: number;
+  lastChecked?: string;
 }
 
 export interface AIAnalysisResult {
