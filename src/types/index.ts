@@ -18,6 +18,11 @@ export interface User {
 export type SeverityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 
 export type IncidentCategory = 
+  | 'Crime'
+  | 'Hazard'
+  | 'Civil Unrest'
+  | 'Cyber Attack'
+  | 'Terrorism Suspected'
   | 'MALWARE_ANALYSIS'
   | 'NETWORK_INTRUSION'
   | 'OSINT_SURVEILLANCE'
@@ -31,7 +36,8 @@ export type IncidentStatus = 'OPEN' | 'INVESTIGATING' | 'CONTAINED' | 'RESOLVED'
 export interface LogEntry {
   id: string;
   incidentId: string;
-  timestamp: string;
+  timestamp: string; // contoh: "16/10/2026 23:40 WIB"
+  incidentDate: string; // Format YYYY-MM-DD
   operatorId: string;
   operatorCallsign: string;
   title: string;
@@ -39,10 +45,10 @@ export interface LogEntry {
   severity: SeverityLevel;
   status: IncidentStatus;
   classification: ClearanceLevel;
-  iocIndicators: string[]; // IPs, Hashes, Domains, Phone, etc.
-  description: string;
-  actionTaken: string;
-  location?: string;
+  location: string; // Lokasi / Wilayah Kejadian
+  description: string; // Deskripsi Kronologi
+  actionTaken: string; // Tindakan Mitigasi / Penanggulangan
+  iocIndicators?: string[]; // Indikator Kompromi (Opsional)
   createdAt: string;
 }
 
