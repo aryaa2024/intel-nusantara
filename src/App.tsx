@@ -8,6 +8,10 @@ import { DailyLogbook } from './pages/DailyLogbook';
 import { TargetProfiling } from './pages/TargetProfiling';
 import { AIThreatAnalysis } from './pages/AIThreatAnalysis';
 import { UserManagement } from './pages/UserManagement';
+import { SecurityRiskManagement } from './pages/SecurityRiskManagement';
+import { SecurityAssessmentPage } from './pages/SecurityAssessment';
+import { StaffTrackingPage } from './pages/StaffTracking';
+import { AutomatedReportingPage } from './pages/AutomatedReporting';
 import { NewsItem, LogEntry } from './types';
 
 const MainLayout: React.FC = () => {
@@ -45,7 +49,7 @@ const MainLayout: React.FC = () => {
     setActiveTab('ai-analysis');
   };
 
-  // Handle escalating from AI Analysis to Daily Logbook
+  // Handle escalating from any module to Daily Logbook
   const handleEscalateToLogbook = (log: Partial<LogEntry>) => {
     setLogbookPreload(log);
     setActiveTab('logbook');
@@ -70,6 +74,7 @@ const MainLayout: React.FC = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 min-w-0 bg-[#05070c] tactical-grid-bg pb-16 md:pb-8">
+          {/* Core Operasional Modules */}
           {activeTab === 'dashboard' && (
             <Dashboard 
               onNavigateToLogbookWithNews={handleNavigateToLogbookWithNews}
@@ -98,6 +103,30 @@ const MainLayout: React.FC = () => {
             />
           )}
 
+          {/* Extended Modules: SRM, Assessment, Tracking, Reporting */}
+          {activeTab === 'srm' && (
+            <SecurityRiskManagement 
+              onEscalateToLogbook={handleEscalateToLogbook}
+            />
+          )}
+
+          {activeTab === 'assessment' && (
+            <SecurityAssessmentPage 
+              onEscalateToLogbook={handleEscalateToLogbook}
+            />
+          )}
+
+          {activeTab === 'tracking' && (
+            <StaffTrackingPage 
+              onEscalateToLogbook={handleEscalateToLogbook}
+            />
+          )}
+
+          {activeTab === 'reporting' && (
+            <AutomatedReportingPage />
+          )}
+
+          {/* Admin User Management */}
           {activeTab === 'users' && (
             <UserManagement />
           )}
