@@ -320,7 +320,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const fullKey = `intel_op_${currentUser.id}_${key}`;
       const saved = localStorage.getItem(fullKey);
-      return saved ? JSON.parse(saved) : defaultValue;
+      if (!saved || saved === 'undefined' || saved === 'null') return defaultValue;
+      const parsed = JSON.parse(saved);
+      if (parsed === null || parsed === undefined) return defaultValue;
+      if (Array.isArray(defaultValue) && !Array.isArray(parsed)) return defaultValue;
+      return parsed as T;
     } catch {
       return defaultValue;
     }

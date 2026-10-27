@@ -43,11 +43,20 @@ export const AutomatedReportingPage: React.FC = () => {
   const [copiedNotification, setCopiedNotification] = useState(false);
 
   // Retrieve live context data from other modules
-  const logbookEntries = getOperatorStorage<LogEntry[]>('daily_logbook', []);
-  const riskItems = getOperatorStorage<RiskItem[]>('srm_risk_register_iso31000', []);
-  const assessments = getOperatorStorage<SecurityAssessment[]>('asis_security_assessments', []);
-  const staffList = getOperatorStorage<StaffMember[]>('staff_tracking_list', []);
-  const breachLogs = getOperatorStorage<GeofenceBreachLog[]>('staff_breach_logs', []);
+  const rawLogs = getOperatorStorage<LogEntry[]>('daily_logbook', []);
+  const logbookEntries = Array.isArray(rawLogs) ? rawLogs : [];
+
+  const rawRisks = getOperatorStorage<RiskItem[]>('srm_risk_register_iso31000', []);
+  const riskItems = Array.isArray(rawRisks) ? rawRisks : [];
+
+  const rawAssessments = getOperatorStorage<SecurityAssessment[]>('asis_security_assessments', []);
+  const assessments = Array.isArray(rawAssessments) ? rawAssessments : [];
+
+  const rawStaff = getOperatorStorage<StaffMember[]>('staff_tracking_list', []);
+  const staffList = Array.isArray(rawStaff) ? rawStaff : [];
+
+  const rawBreaches = getOperatorStorage<GeofenceBreachLog[]>('staff_breach_logs', []);
+  const breachLogs = Array.isArray(rawBreaches) ? rawBreaches : [];
 
   // Compute live statistics for aggregation
   const totalIncidents = logbookEntries.length;

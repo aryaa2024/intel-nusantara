@@ -169,7 +169,8 @@ export const SecurityRiskManagement: React.FC<SecurityRiskManagementProps> = ({ 
   const { currentUser, getOperatorStorage, setOperatorStorage } = useAuth();
   
   const [risks, setRisks] = useState<RiskItem[]>(() => {
-    return getOperatorStorage<RiskItem[]>('srm_risk_register_iso31000', DEFAULT_RISK_ITEMS);
+    const raw = getOperatorStorage<RiskItem[]>('srm_risk_register_iso31000', DEFAULT_RISK_ITEMS);
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_RISK_ITEMS;
   });
 
   const [searchQuery, setSearchQuery] = useState('');

@@ -241,11 +241,12 @@ export const SecurityAssessmentPage: React.FC<SecurityAssessmentProps> = ({ onEs
   const { currentUser, getOperatorStorage, setOperatorStorage } = useAuth();
 
   const [assessments, setAssessments] = useState<SecurityAssessment[]>(() => {
-    return getOperatorStorage<SecurityAssessment[]>('asis_security_assessments', DEFAULT_ASSESSMENTS);
+    const raw = getOperatorStorage<SecurityAssessment[]>('asis_security_assessments', DEFAULT_ASSESSMENTS);
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_ASSESSMENTS;
   });
 
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<string>(
-    assessments[0]?.id || ''
+    assessments[0]?.id || DEFAULT_ASSESSMENTS[0].id
   );
 
   const [activePillarTab, setActivePillarTab] = useState<AssessmentPillar | 'ALL'>('ALL');
@@ -258,7 +259,7 @@ export const SecurityAssessmentPage: React.FC<SecurityAssessmentProps> = ({ onEs
   const [newPropType, setNewPropType] = useState<PropertyType>('Vital Objects / Obvitnas');
   const [newPropLocation, setNewPropLocation] = useState('DKI Jakarta');
 
-  const currentAssessment = assessments.find(a => a.id === selectedAssessmentId) || assessments[0];
+  const currentAssessment = assessments.find(a => a.id === selectedAssessmentId) || assessments[0] || DEFAULT_ASSESSMENTS[0];
 
   useEffect(() => {
     setOperatorStorage('asis_security_assessments', assessments);

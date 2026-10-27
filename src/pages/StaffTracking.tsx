@@ -174,37 +174,22 @@ export const StaffTrackingPage: React.FC<StaffTrackingProps> = ({ onEscalateToLo
   const { currentUser, getOperatorStorage, setOperatorStorage } = useAuth();
 
   const [zones, setZones] = useState<GeofenceZone[]>(() => {
-    return getOperatorStorage<GeofenceZone[]>('staff_geofence_zones', DEFAULT_ZONES);
+    const raw = getOperatorStorage<GeofenceZone[]>('staff_geofence_zones', DEFAULT_ZONES);
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_ZONES;
   });
 
   const [staffList, setStaffList] = useState<StaffMember[]>(() => {
-    return getOperatorStorage<StaffMember[]>('staff_tracking_list', DEFAULT_STAFF);
+    const raw = getOperatorStorage<StaffMember[]>('staff_tracking_list', DEFAULT_STAFF);
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_STAFF;
   });
 
   const [breachLogs, setBreachLogs] = useState<GeofenceBreachLog[]>(() => {
-    return getOperatorStorage<GeofenceBreachLog[]>('staff_breach_logs', [
-      {
-        id: 'brc-01',
-        breachId: 'BRC-2026-104',
-        staffId: 'STF-8892',
-        staffCallsign: 'MERPATI-07',
-        staffName: 'Lettu Farhan Pratama',
-        zoneId: 'zone-01',
-        zoneName: 'Zona 1: Ring 1 Obvitnas Istana & Monas',
-        timestamp: '27/10/2026 13:45 WIB',
-        coordinates: {
-          latitude: -6.184500,
-          longitude: 106.828900
-        },
-        distanceMeters: 1030,
-        status: 'ALERT',
-        alertSeverity: 'CRITICAL'
-      }
-    ]);
+    const raw = getOperatorStorage<GeofenceBreachLog[]>('staff_breach_logs', []);
+    return Array.isArray(raw) ? raw : [];
   });
 
-  const [selectedStaffId, setSelectedStaffId] = useState<string>(staffList[0]?.id || '');
-  const [selectedZoneId, setSelectedZoneId] = useState<string>(zones[0]?.id || '');
+  const [selectedStaffId, setSelectedStaffId] = useState<string>(staffList[0]?.id || DEFAULT_STAFF[0].id);
+  const [selectedZoneId, setSelectedZoneId] = useState<string>(zones[0]?.id || DEFAULT_ZONES[0].id);
 
   // HTML5 Real Device GPS State
   const [isLiveGpsActive, setIsLiveGpsActive] = useState(false);
@@ -527,8 +512,8 @@ export const StaffTrackingPage: React.FC<StaffTrackingProps> = ({ onEscalateToLo
     setTimeout(() => setCopiedNotification(false), 2500);
   };
 
-  const selectedStaff = staffList.find(s => s.id === selectedStaffId) || staffList[0];
-  const activeZone = zones.find(z => z.id === selectedStaff?.assignedZoneId) || zones[0];
+  const selectedStaff = staffList.find(s => s.id === selectedStaffId) || staffList[0] || DEFAULT_STAFF[0];
+  const activeZone = zones.find(z => z.id === selectedStaff?.assignedZoneId) || zones[0] || DEFAULT_ZONES[0];
   const activeBreachesCount = staffList.filter(s => s.status === 'GEOFENCE_BREACH').length;
 
   return (
