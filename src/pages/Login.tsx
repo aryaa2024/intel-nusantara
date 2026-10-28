@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, 
   Lock, 
@@ -10,7 +10,8 @@ import {
   ChevronRight, 
   UserPlus, 
   Fingerprint,
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ClearanceLevel, OperatorRole } from '../types';
@@ -36,7 +37,21 @@ export const Login: React.FC = () => {
   // Status feedback
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [timeoutNotice, setTimeoutNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Periksa apakah sesi sebelumnya berakhir karena inaktivitas (Auto-Logout)
+  useEffect(() => {
+    try {
+      const savedNotice = localStorage.getItem('intel_session_timeout_msg');
+      if (savedNotice) {
+        setTimeoutNotice(savedNotice);
+        localStorage.removeItem('intel_session_timeout_msg');
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,6 +189,21 @@ export const Login: React.FC = () => {
 
         {/* Form Body */}
         <div className="p-6">
+          {/* Inactivity Timeout Notification */}
+          {timeoutNotice && (
+            <div className="mb-5 p-3.5 rounded-xl bg-amber-950/70 border border-amber-600/80 text-amber-200 text-xs font-mono flex items-start gap-2.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-fadeIn">
+              <Clock className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5 animate-pulse" />
+              <div>
+                <span className="font-bold uppercase tracking-wider text-amber-300 block mb-0.5">
+                  SESI BERAKHIR KARENA INAKTIVITAS
+                </span>
+                <span className="text-[11px] text-amber-200/90 leading-relaxed block">
+                  {timeoutNotice}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Error Notification */}
           {errorMessage && (
             <div className="mb-5 p-3 rounded-xl bg-red-950/60 border border-red-600/70 text-red-200 text-xs font-mono flex items-start gap-2 shadow-glow-red animate-fadeIn">

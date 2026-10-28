@@ -29,17 +29,28 @@ import {
   MapPin,
   Newspaper,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Play,
+  Pause,
+  Sparkles
 } from 'lucide-react';
 import { NewsItem, SeverityLevel, NewsCategory } from '../types';
+import { 
+  generateDynamicNewsDataset, 
+  STREAMING_NEWS_POOL, 
+  formatIndonesianDate 
+} from '../data/newsFeedData';
 
 interface DashboardProps {
   onNavigateToLogbookWithNews?: (news: NewsItem) => void;
   onNavigateToAIAnalysis?: (query: string) => void;
 }
 
-// Dataset Berita Nasional & Keamanan Publik Lengkap (Arsip 7 Hari: 10 - 16 Oktober 2026)
-const INITIAL_NATIONAL_NEWS: NewsItem[] = [
+// Dataset dinamis digenerate secara real-time dari ../data/newsFeedData
+const INITIAL_NATIONAL_NEWS: NewsItem[] = generateDynamicNewsDataset();
+
+// Arsip Cadangan Legacy
+const LEGACY_ARCHIVE_NEWS: NewsItem[] = [
   // HARI INI (16 OKT 2026) - daysAgo: 0
   {
     id: 'news-nat-01',
@@ -359,16 +370,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   // State Filter & Pencarian
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('ALL');
   const [timeArchiveFilter, setTimeArchiveFilter] = useState<'ALL' | 'TODAY' | '3_DAYS' | '7_DAYS'>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // State Data Berita & Detail Modal
-  const [newsList, setNewsList] = useState<NewsItem[]>(INITIAL_NATIONAL_NEWS);
+  // State Data Berita & Detail Modal: Load dari localStorage atau default dataset dinamis
+  const [newsList, setNewsList] = useState<NewsItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('intel_live_news_v3');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_NATIONAL_NEWS;
+  });
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   
-  // State Refresh & Telemetri
+  // State Streaming Real-Time & Telemetri
+  const [isAutoStream, setIsAutoStream] = useState<boolean>(true);
+  const [streamPoolIndex, setStreamPoolIndex] = useState<number>(() => {
+    return Math.floor(Math.random() * 5);
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshedTime, setLastRefreshedTime] = useState<string>('23:26 WIB');
+  const [lastRefreshedTime, setLastRefreshedTime] = useState<string>('');
   const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
   const [refreshToast, setRefreshToast] = useState<string | null>(null);
 
@@ -377,35 +406,96 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    setLastRefreshedTime(`${hours}:${minutes} WIB`);
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    setLastRefreshedTime(`${hours}:${minutes}:${seconds} WIB`);
   }, []);
 
-  // Handler Manual Refresh dengan simulasi pembaruan feed
-  const handleManualRefresh = () => {
+  // Ingest dispatch baru dari pool berita terpercaya nasional
+  const ingestNextLiveDispatch = (isManual = false) => {
     setIsRefreshing(true);
-    setRefreshToast('Menghubungkan ke Feed Satelit & Gateway Berita Nasional...');
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const liveTime = `${hours}:${minutes} WIB`;
+
+    const rawTemplate = STREAMING_NEWS_POOL[streamPoolIndex % STREAMING_NEWS_POOL.length];
+    const newDispatch: NewsItem = {
+      ...rawTemplate,
+      id: `live-stream-${Date.now()}`,
+      timestamp: `Baru saja • ${liveTime}`,
+      publishedAt: now.toISOString(),
+      daysAgo: 0,
+      isLiveIncoming: true
+    };
+
+    setNewsList((prev) => {
+      const updated = [newDispatch, ...prev.filter(x => x.id !== newDispatch.id)];
+      try {
+        localStorage.setItem('intel_live_news_v3', JSON.stringify(updated.slice(0, 50)));
+      } catch (e) {
+        console.error('Storage quota', e);
+      }
+      return updated;
+    });
+
+    setStreamPoolIndex((prev) => prev + 1);
+    setLastRefreshedTime(`${hours}:${minutes}:${seconds} WIB`);
+    setIsRefreshing(false);
+
+    setRefreshToast(
+      isManual
+        ? `BERITA BARU MASUK: [${newDispatch.source}] ${newDispatch.title.slice(0, 55)}...`
+        : `DISPATCH LIVE TERBARU: [${newDispatch.source}] ${newDispatch.title.slice(0, 55)}...`
+    );
 
     setTimeout(() => {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const newTimestamp = `${hours}:${minutes} WIB`;
-      
-      setLastRefreshedTime(newTimestamp);
-      setIsRefreshing(false);
-      setRefreshToast('Feed Berita Nasional Berhasil Disinkronkan!');
-
-      setTimeout(() => setRefreshToast(null), 3000);
-    }, 900);
+      setRefreshToast(null);
+    }, 4500);
   };
 
-  // Filter Logic: Kategori, Rentang Waktu (7 Days Archive), dan Pencarian Kata Kunci
+  // Interval otomatis: Ingest berita baru tiap 45 detik saat auto-stream aktif
+  useEffect(() => {
+    if (!isAutoStream) return;
+
+    const interval = setInterval(() => {
+      ingestNextLiveDispatch(false);
+    }, 45000);
+
+    return () => clearInterval(interval);
+  }, [isAutoStream, streamPoolIndex]);
+
+  // Handler Manual Refresh
+  const handleManualRefresh = () => {
+    ingestNextLiveDispatch(true);
+  };
+
+  // Filter Logic: Kategori, Sumber Media Terpercaya, Rentang Waktu (7 Days Archive), dan Pencarian Kata Kunci
   const filteredNews = newsList.filter(item => {
     // 1. Filter Kategori
     const matchCategory = selectedCategory === 'ALL' || 
       item.category.toLowerCase() === selectedCategory.toLowerCase();
 
-    // 2. Filter Rentang Waktu (Archive)
+    // 2. Filter Sumber Media Terpercaya
+    let matchSource = true;
+    if (selectedSourceFilter === 'BSSN') {
+      matchSource = item.source.toLowerCase().includes('bssn');
+    } else if (selectedSourceFilter === 'ANTARA') {
+      matchSource = item.source.toLowerCase().includes('antara');
+    } else if (selectedSourceFilter === 'CNN') {
+      matchSource = item.source.toLowerCase().includes('cnn');
+    } else if (selectedSourceFilter === 'DETIKCOM') {
+      matchSource = item.source.toLowerCase().includes('detik');
+    } else if (selectedSourceFilter === 'KOMPAS') {
+      matchSource = item.source.toLowerCase().includes('kompas');
+    } else if (selectedSourceFilter === 'BMKG') {
+      matchSource = item.source.toLowerCase().includes('bmkg');
+    } else if (selectedSourceFilter === 'TNI_POLRI') {
+      const s = item.source.toLowerCase();
+      matchSource = s.includes('tni') || s.includes('polri') || s.includes('bakamla') || s.includes('polda');
+    }
+
+    // 3. Filter Rentang Waktu (Archive)
     let matchTime = true;
     if (timeArchiveFilter === 'TODAY') {
       matchTime = item.daysAgo === 0;
@@ -415,7 +505,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       matchTime = item.daysAgo <= 6;
     }
 
-    // 3. Filter Pencarian Kata Kunci
+    // 4. Filter Pencarian Kata Kunci
     const q = searchQuery.toLowerCase().trim();
     const matchQuery = !q || 
       item.title.toLowerCase().includes(q) ||
@@ -425,7 +515,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       item.category.toLowerCase().includes(q) ||
       (item.tags && item.tags.some(tag => tag.toLowerCase().includes(q)));
 
-    return matchCategory && matchTime && matchQuery;
+    return matchCategory && matchSource && matchTime && matchQuery;
   });
 
   // Salin Rangkuman Berita ke Clipboard
@@ -648,26 +738,48 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                     </span>
                     <span className="font-mono text-[11px] text-emerald-400 font-bold uppercase tracking-wider">
-                      LIVE UPDATE
+                      LIVE STREAM TERHUBUNG
                     </span>
                     <span className="text-zinc-600 text-xs">•</span>
                     <span className="font-mono text-[11px] text-zinc-400">
-                      Sync: <span className="text-zinc-200 font-semibold">{lastRefreshedTime}</span>
+                      Sync: <span className="text-zinc-200 font-semibold">{lastRefreshedTime || 'Sinkron'}</span>
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Tombol Manual Refresh */}
-              <div className="flex items-center gap-2 self-start sm:self-auto">
+              {/* Streaming Toggle & Manual Ingest Button */}
+              <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+                <button
+                  onClick={() => setIsAutoStream(!isAutoStream)}
+                  className={`px-3 py-1.5 rounded-xl border font-mono text-[11px] font-bold transition-all flex items-center gap-1.5 ${
+                    isAutoStream
+                      ? 'bg-emerald-950/60 border-emerald-600/70 text-emerald-300'
+                      : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white'
+                  }`}
+                  title={isAutoStream ? 'Auto-stream aktif tiap 45 detik' : 'Auto-stream dijeda'}
+                >
+                  {isAutoStream ? (
+                    <>
+                      <Pause className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>AUTO-SYNC ON (45s)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>STREAMING DIJEDA</span>
+                    </>
+                  )}
+                </button>
+
                 <button
                   onClick={handleManualRefresh}
                   disabled={isRefreshing}
-                  className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-700 border border-zinc-700/80 hover:border-red-600/60 text-zinc-200 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
-                  title="Perbarui linimasa berita secara manual"
+                  className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-mono text-xs font-bold transition-all flex items-center gap-2 shadow-glow-red disabled:opacity-50"
+                  title="Tarik berita intelijen terkini secara langsung"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 text-red-500 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span>{isRefreshing ? 'MEMPERBARUI...' : 'REFRESH'}</span>
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span>{isRefreshing ? 'MENYINKRONKAN...' : 'TARIK BERITA TERBARU'}</span>
                 </button>
               </div>
             </div>
@@ -753,6 +865,35 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                   </button>
                 ))}
               </div>
+
+              {/* Row 4: Trusted Media Source Filters */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 pt-1.5 border-t border-zinc-800/60">
+                <span className="text-zinc-500 text-[11px] flex items-center gap-1 mr-1 flex-shrink-0">
+                  <ShieldCheck className="w-3 h-3 text-red-500" /> Sumber Terpercaya:
+                </span>
+                {[
+                  { id: 'ALL', label: 'SEMUA SUMBER' },
+                  { id: 'BSSN', label: 'BSSN SIBER' },
+                  { id: 'ANTARA', label: 'ANTARA NEWS' },
+                  { id: 'CNN', label: 'CNN INDONESIA' },
+                  { id: 'DETIKCOM', label: 'DETIKCOM' },
+                  { id: 'KOMPAS', label: 'KOMPAS' },
+                  { id: 'BMKG', label: 'BMKG' },
+                  { id: 'TNI_POLRI', label: 'TNI / POLRI' },
+                ].map((src) => (
+                  <button
+                    key={src.id}
+                    onClick={() => setSelectedSourceFilter(src.id)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold whitespace-nowrap transition-colors ${
+                      selectedSourceFilter === src.id
+                        ? 'bg-zinc-100 text-black shadow-sm font-black'
+                        : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {src.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* 3. News Feed List */}
@@ -784,6 +925,11 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
                       <div className="flex items-center gap-2 flex-wrap">
                         {getCategoryBadge(news.category)}
+                        {news.isLiveIncoming && (
+                          <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-red-100 bg-red-600 px-2 py-0.5 rounded shadow-glow-red animate-pulse" title="Dispatch Masuk Secara Real-time">
+                            <Radio className="w-3 h-3 text-white" /> BARU MASUK
+                          </span>
+                        )}
                         <span className="font-mono font-bold text-xs text-zinc-200 group-hover:text-red-400 transition-colors">
                           {news.source}
                         </span>

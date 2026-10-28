@@ -71,6 +71,7 @@ export interface NewsItem {
   region: string;
   impactScore?: 'RENDAH' | 'SEDANG' | 'TINGGI' | 'KRITIS';
   tags?: string[];
+  isLiveIncoming?: boolean;
 }
 
 export type TargetStatus = 'UNKNOWN' | 'UNDER WATCH' | 'HIGH PRIORITY' | 'CLEARED' | 'ACTIVE_MONITORING' | 'TARGET_IDENTIFIED' | 'DORMANT' | 'NEUTRALIZED';

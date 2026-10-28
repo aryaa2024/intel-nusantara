@@ -12,6 +12,7 @@ import { SecurityRiskManagement } from './pages/SecurityRiskManagement';
 import { SecurityAssessmentPage } from './pages/SecurityAssessment';
 import { StaffTrackingPage } from './pages/StaffTracking';
 import { AutomatedReportingPage } from './pages/AutomatedReporting';
+import { SessionTimeoutManager } from './components/SessionTimeoutManager';
 import { NewsItem, LogEntry } from './types';
 
 const MainLayout: React.FC = () => {
@@ -57,6 +58,9 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans selection:bg-red-600 selection:text-white">
+      {/* Auto-Logout Inactivity Monitor (15 Min SOC Standard) */}
+      <SessionTimeoutManager />
+
       {/* Top Header */}
       <Header 
         onToggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)} 
