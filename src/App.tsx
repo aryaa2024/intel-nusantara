@@ -31,15 +31,19 @@ const MainLayout: React.FC = () => {
 
   // Handle escalating from News to Daily Logbook
   const handleNavigateToLogbookWithNews = (news: NewsItem) => {
+    const cat = news.category.toString().toLowerCase();
     setLogbookPreload({
       title: `[Eskalasi Feed] ${news.title}`,
-      description: `Sumber: ${news.source}\nWilayah: ${news.region}\n\nRingkasan Berita:\n${news.summary}`,
+      description: `Sumber: ${news.source}\nWilayah: ${news.region}\nKategori Intel: ${news.category.toUpperCase()}\n\nRingkasan Berita:\n${news.summary}`,
       severity: news.threatLevel,
-      category: (news.category === 'Cyber' || news.category === 'CYBER') ? 'MALWARE_ANALYSIS' : 
-                news.category === 'Keamanan' ? 'PHYSICAL_SECURITY' :
-                news.category === 'Bencana' ? 'PHYSICAL_SECURITY' :
-                news.category === 'Politik' ? 'DISINFORMATION' :
-                news.category === 'INFRASTRUKTUR' ? 'NETWORK_INTRUSION' : 'NETWORK_INTRUSION'
+      category: (cat === 'cyber') ? 'Cyber Attack' :
+                (cat === 'kriminal' || cat === 'crime') ? 'Crime' :
+                (cat === 'korupsi') ? 'Crime' :
+                (cat === 'terorisme' || cat === 'teror') ? 'Terrorism Suspected' :
+                (cat === 'demo' || cat === 'unjuk rasa') ? 'Civil Unrest' :
+                (cat === 'bencana' || cat === 'hazard') ? 'Hazard' :
+                (cat === 'politik') ? 'DISINFORMATION' :
+                'PHYSICAL_SECURITY'
     });
     setActiveTab('logbook');
   };

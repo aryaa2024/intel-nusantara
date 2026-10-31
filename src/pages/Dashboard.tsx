@@ -32,7 +32,8 @@ import {
   AlertCircle,
   Play,
   Pause,
-  Sparkles
+  Sparkles,
+  Users
 } from 'lucide-react';
 import { NewsItem, SeverityLevel, NewsCategory } from '../types';
 import { 
@@ -374,20 +375,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [timeArchiveFilter, setTimeArchiveFilter] = useState<'ALL' | 'TODAY' | '3_DAYS' | '7_DAYS'>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Key storage berita versi terbaru
+  const STORAGE_NEWS_KEY = 'intel_live_news_v5';
+
   // State Data Berita & Detail Modal: Load dari localStorage atau default dataset dinamis
   const [newsList, setNewsList] = useState<NewsItem[]>(() => {
     try {
-      const saved = localStorage.getItem('intel_live_news_v3');
+      const saved = localStorage.getItem(STORAGE_NEWS_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
+        const parsed: NewsItem[] = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          // Validasi bahwa data memuat ragam kategori terbaru (Demo, Korupsi, Kriminal)
+          const hasDiverseNews = parsed.some(n => 
+            n.category === 'Demo' || n.category === 'Korupsi' || n.category === 'Kriminal' || n.category === 'Terorisme'
+          );
+          if (hasDiverseNews) {
+            return parsed;
+          }
         }
       }
     } catch {
       // fallback
     }
-    return INITIAL_NATIONAL_NEWS;
+    const fresh = generateDynamicNewsDataset();
+    try {
+      localStorage.setItem(STORAGE_NEWS_KEY, JSON.stringify(fresh));
+    } catch {
+      // ignore
+    }
+    return fresh;
   });
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   
@@ -409,6 +425,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const seconds = String(now.getSeconds()).padStart(2, '0');
     setLastRefreshedTime(`${hours}:${minutes}:${seconds} WIB`);
   }, []);
+
+  // Handler muat ulang seluruh dataset berita baru secara total
+  const handleReloadFreshFeed = () => {
+    setIsRefreshing(true);
+    const fresh = generateDynamicNewsDataset();
+    setNewsList(fresh);
+    try {
+      localStorage.setItem(STORAGE_NEWS_KEY, JSON.stringify(fresh));
+    } catch (e) {
+      console.error(e);
+    }
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    setLastRefreshedTime(`${hours}:${minutes}:${seconds} WIB`);
+    setIsRefreshing(false);
+    setRefreshToast('Feed Berita Nasional Terkini (Demo, Korupsi, Kriminal, Terorisme) Berhasil Dimuat!');
+    setTimeout(() => setRefreshToast(null), 3500);
+  };
 
   // Ingest dispatch baru dari pool berita terpercaya nasional
   const ingestNextLiveDispatch = (isManual = false) => {
@@ -432,7 +468,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setNewsList((prev) => {
       const updated = [newDispatch, ...prev.filter(x => x.id !== newDispatch.id)];
       try {
-        localStorage.setItem('intel_live_news_v3', JSON.stringify(updated.slice(0, 50)));
+        localStorage.setItem(STORAGE_NEWS_KEY, JSON.stringify(updated.slice(0, 60)));
       } catch (e) {
         console.error('Storage quota', e);
       }
@@ -478,7 +514,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // 2. Filter Sumber Media Terpercaya
     let matchSource = true;
-    if (selectedSourceFilter === 'BSSN') {
+    if (selectedSourceFilter === 'KPK_KEJAGUNG') {
+      const s = item.source.toLowerCase();
+      matchSource = s.includes('kpk') || s.includes('kejaksaan') || s.includes('tipikor');
+    } else if (selectedSourceFilter === 'TNI_POLRI') {
+      const s = item.source.toLowerCase();
+      matchSource = s.includes('tni') || s.includes('polri') || s.includes('bakamla') || s.includes('polda') || s.includes('densus') || s.includes('bareskrim');
+    } else if (selectedSourceFilter === 'BSSN') {
       matchSource = item.source.toLowerCase().includes('bssn');
     } else if (selectedSourceFilter === 'ANTARA') {
       matchSource = item.source.toLowerCase().includes('antara');
@@ -489,10 +531,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     } else if (selectedSourceFilter === 'KOMPAS') {
       matchSource = item.source.toLowerCase().includes('kompas');
     } else if (selectedSourceFilter === 'BMKG') {
-      matchSource = item.source.toLowerCase().includes('bmkg');
-    } else if (selectedSourceFilter === 'TNI_POLRI') {
       const s = item.source.toLowerCase();
-      matchSource = s.includes('tni') || s.includes('polri') || s.includes('bakamla') || s.includes('polda');
+      matchSource = s.includes('bmkg') || s.includes('bnpb');
     }
 
     // 3. Filter Rentang Waktu (Archive)
@@ -536,27 +576,55 @@ TAUTAN ASLI: ${news.sourceUrl}`;
     setTimeout(() => setCopiedNotification(false), 2000);
   };
 
-  // Helper Badge Kategori
+  // Helper Badge Kategori Taktis Berstandar SOC
   const getCategoryBadge = (category: string) => {
     const cat = category.toUpperCase();
-    if (cat === 'CYBER') {
+    if (cat === 'DEMO' || cat === 'UNJUK RASA') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/90 text-amber-300 border border-amber-700/80 shadow-[0_0_8px_rgba(245,158,11,0.3)] flex items-center gap-1">
+          <Users className="w-3 h-3 text-amber-400" /> DEMO & MASSA
+        </span>
+      );
+    }
+    if (cat === 'KORUPSI' || cat === 'HUKUM') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-700/80 shadow-[0_0_8px_rgba(16,185,129,0.3)] flex items-center gap-1">
+          <AlertCircle className="w-3 h-3 text-emerald-400" /> KORUPSI & HUKUM
+        </span>
+      );
+    }
+    if (cat === 'KRIMINAL' || cat === 'CRIME') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-950/90 text-rose-300 border border-rose-700/80 shadow-[0_0_8px_rgba(244,63,94,0.3)] flex items-center gap-1">
+          <ShieldAlert className="w-3 h-3 text-rose-400" /> KRIMINALITAS
+        </span>
+      );
+    }
+    if (cat === 'TERORISME' || cat === 'TEROR') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950 text-red-300 border border-red-700 shadow-glow-red animate-pulse flex items-center gap-1">
+          <Flame className="w-3 h-3 text-red-400" /> TERORISME
+        </span>
+      );
+    }
+    if (cat === 'CYBER' || cat === 'JUDOL' || cat === 'SIBER') {
       return (
         <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-800/80 flex items-center gap-1">
-          <Cpu className="w-3 h-3 text-cyan-400" /> CYBER
+          <Cpu className="w-3 h-3 text-cyan-400" /> CYBER & JUDOL
         </span>
       );
     }
     if (cat === 'KEAMANAN') {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-800/80 flex items-center gap-1">
-          <ShieldAlert className="w-3 h-3 text-red-400" /> KEAMANAN
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-800/80 flex items-center gap-1">
+          <ShieldCheck className="w-3 h-3 text-blue-400" /> KEAMANAN
         </span>
       );
     }
     if (cat === 'BENCANA') {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 flex items-center gap-1">
-          <Flame className="w-3 h-3 text-amber-400" /> BENCANA
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-yellow-950/80 text-yellow-300 border border-yellow-800/80 flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3 text-yellow-400" /> BENCANA
         </span>
       );
     }
@@ -748,7 +816,7 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                 </div>
               </div>
 
-              {/* Streaming Toggle & Manual Ingest Button */}
+              {/* Streaming Toggle, Full Refresh, & Manual Ingest Button */}
               <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
                 <button
                   onClick={() => setIsAutoStream(!isAutoStream)}
@@ -773,6 +841,15 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                 </button>
 
                 <button
+                  onClick={handleReloadFreshFeed}
+                  className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-amber-600/60 text-zinc-300 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-1.5"
+                  title="Muat ulang seluruh paket berita nasional terkini (Demo, Korupsi, Kriminal, Terorisme)"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>SINKRONKAN FEED LENGKAP</span>
+                </button>
+
+                <button
                   onClick={handleManualRefresh}
                   disabled={isRefreshing}
                   className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-mono text-xs font-bold transition-all flex items-center gap-2 shadow-glow-red disabled:opacity-50"
@@ -792,7 +869,7 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
                   type="text"
-                  placeholder="Cari berdasarkan kata kunci, judul, sumber (BSSN/BMKG/Polri), atau wilayah..."
+                  placeholder="Cari berita demo, KPK, begal, narkoba, judol, terorisme, atau wilayah..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-9 py-2.5 bg-black/60 border border-zinc-700/80 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors"
@@ -840,17 +917,21 @@ TAUTAN ASLI: ${news.sourceUrl}`;
                 </span>
               </div>
 
-              {/* Row 3: Category Filter Pills (Keamanan, Bencana, Politik, Cyber) */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              {/* Row 3: Category Filter Pills (Demo, Korupsi, Kriminal, Terorisme, Politik, Cyber, dll.) */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
                 <span className="text-zinc-500 text-[11px] flex items-center gap-1 mr-1 flex-shrink-0">
                   <Filter className="w-3 h-3 text-zinc-400" /> Kategori:
                 </span>
                 {[
                   { id: 'ALL', label: 'SEMUA KATEGORI' },
+                  { id: 'Demo', label: 'DEMO & UNJUK RASA' },
+                  { id: 'Korupsi', label: 'KORUPSI & HUKUM' },
+                  { id: 'Kriminal', label: 'KRIMINALITAS' },
+                  { id: 'Terorisme', label: 'TERORISME' },
+                  { id: 'Politik', label: 'POLITIK & PEMILU' },
+                  { id: 'Cyber', label: 'CYBER & JUDOL' },
                   { id: 'Keamanan', label: 'KEAMANAN' },
                   { id: 'Bencana', label: 'BENCANA' },
-                  { id: 'Politik', label: 'POLITIK' },
-                  { id: 'Cyber', label: 'CYBER' },
                 ].map((cat) => (
                   <button
                     key={cat.id}
@@ -869,17 +950,18 @@ TAUTAN ASLI: ${news.sourceUrl}`;
               {/* Row 4: Trusted Media Source Filters */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 pt-1.5 border-t border-zinc-800/60">
                 <span className="text-zinc-500 text-[11px] flex items-center gap-1 mr-1 flex-shrink-0">
-                  <ShieldCheck className="w-3 h-3 text-red-500" /> Sumber Terpercaya:
+                  <ShieldCheck className="w-3 h-3 text-red-500" /> Sumber:
                 </span>
                 {[
                   { id: 'ALL', label: 'SEMUA SUMBER' },
-                  { id: 'BSSN', label: 'BSSN SIBER' },
-                  { id: 'ANTARA', label: 'ANTARA NEWS' },
+                  { id: 'KPK_KEJAGUNG', label: 'KPK & KEJAGUNG' },
+                  { id: 'TNI_POLRI', label: 'TNI & POLRI' },
                   { id: 'CNN', label: 'CNN INDONESIA' },
                   { id: 'DETIKCOM', label: 'DETIKCOM' },
                   { id: 'KOMPAS', label: 'KOMPAS' },
+                  { id: 'ANTARA', label: 'ANTARA NEWS' },
+                  { id: 'BSSN', label: 'BSSN SIBER' },
                   { id: 'BMKG', label: 'BMKG' },
-                  { id: 'TNI_POLRI', label: 'TNI / POLRI' },
                 ].map((src) => (
                   <button
                     key={src.id}

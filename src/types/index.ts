@@ -53,7 +53,16 @@ export interface LogEntry {
   createdAt: string;
 }
 
-export type NewsCategory = 'Keamanan' | 'Bencana' | 'Politik' | 'Cyber' | 'Infrastruktur';
+export type NewsCategory = 
+  | 'Keamanan' 
+  | 'Bencana' 
+  | 'Politik' 
+  | 'Cyber' 
+  | 'Infrastruktur'
+  | 'Kriminal'
+  | 'Terorisme'
+  | 'Korupsi'
+  | 'Demo';
 
 export interface NewsItem {
   id: string;
@@ -64,7 +73,7 @@ export interface NewsItem {
   timestamp: string; // Contoh: "10:42 WIB"
   publishedAt: string; // Format tanggal YYYY-MM-DD atau ISO
   daysAgo: number; // 0 untuk hari ini, 1-7 untuk arsip 7 hari
-  category: NewsCategory | 'CYBER' | 'POLITIK' | 'GEOPOLITIK' | 'TERORISME' | 'INFRASTRUKTUR';
+  category: NewsCategory | string;
   threatLevel: SeverityLevel;
   sourceUrl: string;
   verified: boolean;
