@@ -4,6 +4,7 @@ import {
   SituationalStatus, 
   OperationalScope 
 } from '../types';
+import { UNRAS_REPORTS } from '../data/situationalIntelligenceData';
 
 // Kamus Entitas Geografis & Objek Sasaran Strategis Nasional
 export const KNOWN_GEO_ENTITIES: {
@@ -350,147 +351,36 @@ export const SIMULATION_PRESETS: {
     source: 'Humas Bareskrim Polri',
     url: 'https://polri.go.id/bareskrim-sabu-pelabuhan-merak',
     rawText: `Tim Dittipidnarkoba Bareskrim Polri menggagalkan penyelundupan 145 kg sabu asal Golden Triangle yang disembunyikan di dasar kompartemen truk sayur di Pelabuhan Penyeberangan Merak pada pukul 01.30 WIB dini hari. Tiga orang kurir ditangkap dan jaringan penerima asal Jakarta telah dipetakan.`
+  },
+  {
+    title: 'Konvoi Ratusan Buruh SPAI-FSPMI Melintasi Ancol Menuju Balai Kota DKI',
+    scope: 'UNRAS_MASSA',
+    source: 'Tempo.co Metro',
+    url: 'https://metro.tempo.co/read/konvoi-buruh-balaikota-dki-ump',
+    rawText: `Konvoi massa buruh FSPMI bergerak dari titik kumpul Ancol Barat menyusuri Jl. RE Martadinata, Jl. Benyamin Sueb, hingga Balai Kota DKI Jakarta sejak pukul 07.30 WIB. Massa menuntut penetapan kenaikan UMP 2027 minimal 8-10% serta penolakan regulasi lama. Sebanyak 150 personel gabungan siaga di sekeliling Medan Merdeka Selatan.`
+  },
+  {
+    title: 'OTT KPK Terkait Kasus Suap Pengadaan Proyek Jalur Kereta Api',
+    scope: 'CRIME_INVESTIGATION',
+    source: 'KPK RI Info Perkara',
+    url: 'https://kpk.go.id/berita-penindakan/ott-suap-jalur-kereta',
+    rawText: `Komisi Pemberantasan Korupsi (KPK) melakukan Operasi Tangkap Tangan (OTT) terhadap pejabat pembuat komitmen di Jakarta Selatan dan Semarang pukul 09.40 WIB. Tim penindakan mengamankan uang tunai senilai Rp 14,2 Miliar dalam koper yang diduga sebagai commitment fee pemulusan lelang proyek jalur kereta api.`
+  },
+  {
+    title: 'Kejagung Geledah Kantor Tambang Terkait Mafia Izin IUP Nikel',
+    scope: 'CRIME_INVESTIGATION',
+    source: 'Kejaksaan Agung RI',
+    url: 'https://kejaksaan.go.id/berita/kejagung-geledah-kantor-tambang-nikel',
+    rawText: `Penyidik Jampidsus Kejaksaan Agung menggeledah sejumlah kantor konsultan pertambangan dan instansi terkait di Jakarta Selatan sejak pukul 08.00 WIB. Penyidik menyita 3 boks dokumen legalitas IUP dan membekukan rekening korporasi terkait rekayasa kuota ekspor nikel ilegal bernilai triliunan rupiah.`
+  },
+  {
+    title: 'Bareskrim Sita Rp 89 Miliar Kasus Beking Judi Online Oknum Komdigi',
+    scope: 'SECURITY_INCIDENT',
+    source: 'Detikcom Inet & Siber',
+    url: 'https://detik.com/inet/cybercrime/bareskrim-sita-89-miliar-kasus-judol-komdigi',
+    rawText: `Direktorat Tindak Pidana Siber Bareskrim Polri menggeledah ruko kantor satelit di Bekasi dan safe house Jakarta Selatan pukul 07.25 WIB. Petugas menyita uang tunai Rp 89 Miliar, 45 smartphone terenkripsi, serta puluhan emas batangan dari sindikat oknum kementerian yang sengaja membuka blokir ribuan situs judi online.`
   }
 ];
 
-// Data Awal Bawaan Dasbor Situasional (Realistic Multi-Incident Dataset)
-export const INITIAL_SITUATIONAL_REPORTS: SituationalReport[] = [
-  {
-    id: 'sitrep-001',
-    reportCode: 'SITREP-2026-9011',
-    timestamp: '10:15 WIB',
-    eventDate: '2026-11-05',
-    targetEntity: 'Gedung DPR/MPR RI Senayan',
-    region: 'Jakarta Pusat, DKI Jakarta',
-    coordinates: { latitude: -6.2098, longitude: 106.7997 },
-    partiesInvolved: 'Konfederasi Serikat Buruh Indonesia (KSPI / KSBSI)',
-    scaleEstimate: '± 3.200 Orang / Skala Besar',
-    crowdCountEstimate: 3200,
-    issueSummary: 'Aksi unjuk rasa ribuan buruh menuntut kenaikan UMP 2027 sebesar 10% dan pencabutan kluster ketenagakerjaan. 2.850 personel gabungan siaga.',
-    fullContent: 'Ribuan buruh se-Jabodetabek memadati ruas Jl. Gatot Subroto depan gerbang DPR RI sejak pukul 10.00 WIB. Ditlantas Polda Metro Jaya memberlakukan penutupan jalur lambat dan contraflow. Pengamanan dilengkapi 4 unit water cannon dan kawat berduri lapis 3.',
-    threatLevel: 'HIGH',
-    status: 'Live',
-    scope: 'UNRAS_MASSA',
-    sourceUrl: 'https://cnnindonesia.com/nasional/demo-buruh-gedung-dpr-senayan',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-05T03:15:00Z',
-    shareToken: 'token_dpr_9921',
-    hotspotRank: 1
-  },
-  {
-    id: 'sitrep-002',
-    reportCode: 'SITREP-2026-9012',
-    timestamp: '03:40 WIB',
-    eventDate: '2026-11-05',
-    targetEntity: 'Obvitnas Kilang Minyak Balongan Pertamina',
-    region: 'Indramayu, Jawa Barat',
-    coordinates: { latitude: -6.3685, longitude: 108.3845 },
-    partiesInvolved: 'Anomali Drone Liar Nirawak / Pelaku Dalam Penyelidikan',
-    scaleEstimate: 'Perimeter Ring 1 Terancam / Siaga 1',
-    crowdCountEstimate: 120,
-    issueSummary: 'Deteksi drone pengintai tanpa izin melintas rendah di atas tangki bahan bakar strategis. Aktivasi anti-drone jammer dan pengetatan patroli darat.',
-    fullContent: 'Radar pemantau udara militer Kodam III Siliwangi mendeteksi wahana nirawak mencurigakan di atas batas steril kilang minyak Balongan. Jammer portable berhasil memaksa drone mendarat darurat 1 km di luar pagar perimeter.',
-    threatLevel: 'CRITICAL',
-    status: 'Live',
-    scope: 'OBVITNAS_THREAT',
-    sourceUrl: 'https://pertamina.com/keamanan-kilang-balongan',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-05T01:40:00Z',
-    shareToken: 'token_balongan_8812',
-    hotspotRank: 2
-  },
-  {
-    id: 'sitrep-003',
-    reportCode: 'SITREP-2026-9013',
-    timestamp: '14:30 WIB',
-    eventDate: '2026-11-04',
-    targetEntity: 'Kawasan Patung Kuda & Istana Merdeka',
-    region: 'Jakarta Pusat, DKI Jakarta',
-    coordinates: { latitude: -6.1754, longitude: 106.8272 },
-    partiesInvolved: 'Aliansi Mahasiswa & BEM Seluruh Indonesia (BEM SI)',
-    scaleEstimate: '± 850 Orang / Skala Sedang',
-    crowdCountEstimate: 850,
-    issueSummary: 'Unras mahasiswa menolak efisiensi subsidi dan menuntut penuntasan kasus korupsi. Terjadi pembakaran ban bekas di depan pembatas beton.',
-    fullContent: 'Massa mahasiswa berorasi hingga petang hari di Jl. Medan Merdeka Barat. Kapolres Metro Jakarta Pusat memimpin mediasi sehingga aksi selesai dengan damai pada pukul 18.00 WIB tanpa insiden bentrokan fisik.',
-    threatLevel: 'HIGH',
-    status: 'Selesai',
-    scope: 'UNRAS_MASSA',
-    sourceUrl: 'https://detik.com/news/demo-patung-kuda-monas-bakar-ban',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-04T07:30:00Z',
-    shareToken: 'token_patungkuda_7734',
-    hotspotRank: 3
-  },
-  {
-    id: 'sitrep-004',
-    reportCode: 'SITREP-2026-9014',
-    timestamp: '08:15 WIB',
-    eventDate: '2026-11-04',
-    targetEntity: 'Koridor Maritim ALKI I Selat Malaka',
-    region: 'Kepulauan Riau',
-    coordinates: { latitude: 1.1500, longitude: 103.9500 },
-    partiesInvolved: 'Sindikat Penyelundupan Senjata Transnasional',
-    scaleEstimate: '28 Senpi Serbu Disita / 4 Awak Diamankan',
-    crowdCountEstimate: 50,
-    issueSummary: 'Pencegatan kapal motor pembawa senjata api ilegal otomatis tanpa AIS di perairan Riau. Pengamanan barang bukti ke pangkalan AL Batam.',
-    fullContent: 'Berdasarkan koordinasi intelijen maritim, kapal KM Bintang Samudera dicegat tim VBSS TNI AL. Penyitaan 28 pucuk senpi kaliber 5.56mm dan amunisi tajam berhasil mengamankan jalur logistik perairan barat Indonesia.',
-    threatLevel: 'CRITICAL',
-    status: 'Selesai',
-    scope: 'PATROL_INTERCEPTION',
-    sourceUrl: 'https://bakamla.go.id/pencegatan-senpi-selat-malaka',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-04T01:15:00Z',
-    shareToken: 'token_malaka_6641',
-    hotspotRank: 4
-  },
-  {
-    id: 'sitrep-005',
-    reportCode: 'SITREP-2026-9015',
-    timestamp: '09:00 WIB',
-    eventDate: '2026-11-03',
-    targetEntity: 'Kawasan Industri & Tambang Nikel Morowali',
-    region: 'Morowali, Sulawesi Tengah',
-    coordinates: { latitude: -2.8533, longitude: 122.1583 },
-    partiesInvolved: 'Aliansi Masyarakat Adat & Solidaritas Petani Daerah',
-    scaleEstimate: '± 650 Orang / Jalur Truk Terblokir',
-    crowdCountEstimate: 650,
-    issueSummary: 'Aksi pemblokadean akses jalan hauling tambang nikel terkait sengketa pembebasan lahan ulayat. Operasional pengiriman terhenti sementara.',
-    fullContent: 'Ratusan warga menutup akses gerbang utama pabrik pengolahan bijih nikel. Kepolisian Resor Morowali menyiagakan 150 personel Dalmas untuk memastikan situasi kondusif selama pertemuan tripartit warga, pemda, dan pengelola.',
-    threatLevel: 'MEDIUM',
-    status: 'Live',
-    scope: 'UNRAS_MASSA',
-    sourceUrl: 'https://antaranews.com/blokir-jalan-tambang-morowali',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-03T02:00:00Z',
-    shareToken: 'token_morowali_5512',
-    hotspotRank: 5
-  },
-  {
-    id: 'sitrep-006',
-    reportCode: 'SITREP-2026-9016',
-    timestamp: '01:30 WIB',
-    eventDate: '2026-11-02',
-    targetEntity: 'Pelabuhan Penyeberangan Merak ASDP',
-    region: 'Cilegon, Banten',
-    coordinates: { latitude: -5.9322, longitude: 105.9984 },
-    partiesInvolved: 'Sindikat Penyelundupan Narkoba Jaringan Internasional',
-    scaleEstimate: '145 Kg Sabu Disita / 3 Kurir Ditangkap',
-    crowdCountEstimate: 40,
-    issueSummary: 'Penggerebekan truk sayur bermuatan 145 kg sabu asal Golden Triangle di dermaga eksekutif Merak. Nilai barang bukti ditaksir Rp 210 Miliar.',
-    fullContent: 'Operasi senyap Bareskrim Polri bekerja sama dengan K-9 Bea Cukai membongkar ruang rahasia ganda di bak truk diesel. Modus penyelundupan memanfaatkan kepadatan penyeberangan dini hari.',
-    threatLevel: 'HIGH',
-    status: 'Selesai',
-    scope: 'CRIME_INVESTIGATION',
-    sourceUrl: 'https://polri.go.id/bareskrim-sabu-pelabuhan-merak',
-    loggedBy: 'Aryaa (ARYAA-KOMANDO)',
-    sourceEngine: 'AI News Extractor & OSINT Sentinel v2.4',
-    createdAt: '2026-11-02T18:30:00Z',
-    shareToken: 'token_merak_4421',
-    hotspotRank: 6
-  }
-];
+// Data Awal Bawaan Dasbor Situasional (Dataset Lengkap 68 Aksi Rengiat Jakarta & Nasional)
+export const INITIAL_SITUATIONAL_REPORTS: SituationalReport[] = UNRAS_REPORTS;
