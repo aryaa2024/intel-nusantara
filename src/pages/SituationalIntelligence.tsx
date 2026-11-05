@@ -305,11 +305,11 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
   }, [reports, searchQuery, filterThreat, filterStatus, filterCategory]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-7 font-sans text-slate-100">
+    <div className="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-5 sm:space-y-7 font-sans text-slate-100">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-16 right-4 z-50 bg-[#0d1424] border border-cyan-500 text-cyan-200 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 font-mono text-xs animate-fadeIn">
+        <div className="fixed top-16 right-4 z-50 bg-[#0d1424] border border-cyan-500 text-cyan-200 px-3.5 py-2 rounded-xl shadow-2xl flex items-center gap-2 font-mono text-xs animate-fadeIn">
           <Activity className="w-4 h-4 text-cyan-400 animate-spin" />
           <span>{toastMessage}</span>
         </div>
@@ -317,25 +317,25 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
 
       {/* Top Banner Public View Notice (Strict Read-Only Mode) */}
       {isReadOnly && (
-        <div className="bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 border border-amber-600/70 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono shadow-[0_0_20px_rgba(245,158,11,0.15)] animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-600/20 border border-amber-500 text-amber-400 shadow-glow-amber flex-shrink-0">
-              <ShieldCheck className="w-6 h-6 animate-pulse" />
+        <div className="bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 border border-amber-600/70 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono shadow-[0_0_20px_rgba(245,158,11,0.15)] animate-fadeIn">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-amber-600/20 border border-amber-500 text-amber-400 shadow-glow-amber flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs px-2 py-0.5 bg-amber-900/90 text-amber-200 rounded font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-amber-900/90 text-amber-200 rounded font-bold uppercase tracking-widest">
                   MODE PUBLIK // STRICT READ-ONLY
                 </span>
-                <span className="text-emerald-400 text-xs flex items-center gap-1 font-semibold">
+                <span className="text-emerald-400 text-[10px] sm:text-xs flex items-center gap-1 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> TERBUKA TANPA LOGIN
                 </span>
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-white tracking-wide mt-0.5">
-                EXECUTIVE SITUATIONAL REPORT & THREAT MONITORING
+              <h2 className="text-xs sm:text-base font-bold text-white tracking-wide mt-0.5 leading-snug">
+                EXECUTIVE SITUATIONAL REPORT &amp; THREAT MONITORING
               </h2>
-              <p className="text-[11px] text-zinc-400">
-                Laporan intelijen situasional tingkat direksi untuk pimpinan, pengelola aset komersial, & stakeholder operasional.
+              <p className="text-[10px] sm:text-[11px] text-zinc-400">
+                Laporan intelijen situasional resmi untuk pimpinan, pengelola aset komersial, &amp; stakeholder.
               </p>
             </div>
           </div>
@@ -343,10 +343,10 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           {onExitToLogin && (
             <button
               onClick={onExitToLogin}
-              className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-cyan-500 text-zinc-200 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0 self-start sm:self-auto"
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-cyan-500 text-zinc-200 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0 self-start sm:self-auto"
             >
               <LogIn className="w-4 h-4 text-cyan-400" />
-              <span>Login Operator Komando</span>
+              <span>Login Operator</span>
             </button>
           )}
         </div>
@@ -355,38 +355,38 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           HEADER EKSEKUTIF ALA MJ-SENTINEL (Screenshot 1)
           ========================================================================= */}
-      <div className="space-y-3.5 border-b border-zinc-800/80 pb-6">
-        {/* Brand Tagline */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+      <div className="space-y-3 border-b border-zinc-800/80 pb-5 sm:pb-6">
+        {/* Brand Tagline & Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono text-cyan-400 tracking-wider sm:tracking-widest font-semibold uppercase">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-            MJ-SENTINEL &bull; MATAJAGA RESEARCH &bull; INTELLIGENCE &amp; ADVISORY
+            <span>MJ-SENTINEL &bull; MATAJAGA RESEARCH &bull; INTELLIGENCE &amp; ADVISORY</span>
           </div>
 
           {/* Action Controls for Operator (Hidden in Read-Only Mode) */}
           {!isReadOnly && (
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setIsInputModalOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center gap-2"
+                className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center justify-center gap-1.5"
                 title="Input Artikel Berita Baru Menggunakan Parser Otomatis AI"
               >
-                <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
-                <span>INPUT BERITA (AI EXTRACTOR)</span>
+                <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
+                <span className="truncate">INPUT BERITA AI</span>
               </button>
 
               <button
                 onClick={handleOpenShareModal}
-                className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-cyan-500 text-cyan-300 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-cyan-500 text-cyan-300 hover:text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
                 title="Buat Tautan Berbagi Publik (Akses Siapa Saja Tanpa Login)"
               >
-                <Share2 className="w-4 h-4 text-cyan-400" />
-                <span>BAGIKAN LAPORAN</span>
+                <Share2 className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="truncate">BAGIKAN LINK</span>
               </button>
 
               <button
                 onClick={handleResetDefaultReports}
-                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600 text-zinc-400 hover:text-red-400 transition-colors"
+                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600 text-zinc-400 hover:text-red-400 transition-colors flex-shrink-0"
                 title="Reset ke Dataset Bawaan MJ-Sentinel 68 Titik"
               >
                 <Trash2 className="w-4 h-4" />
@@ -397,124 +397,124 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
 
         {/* Big Executive Title */}
         <div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Situasi Jakarta &amp; Unjuk Rasa<br />
-            <span className="text-slate-300 font-semibold text-xl sm:text-2xl">Kamis, 5 November 2026</span>
+            <span className="text-slate-300 font-semibold text-base sm:text-xl lg:text-2xl">Kamis, 5 November 2026</span>
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 max-w-4xl leading-relaxed">
+          <p className="text-[11px] sm:text-xs md:text-sm text-zinc-400 mt-1 max-w-4xl leading-relaxed">
             Gambaran situasional tingkat direksi atas 68 titik unjuk rasa terencana di DKI Jakarta, sebaran geografis, puncak waktu, rute pergerakan massa, dan eksposur terhadap entitas korporasi.
           </p>
         </div>
 
         {/* 4 Executive Badges (Sesuai Persis Screenshot 1) */}
-        <div className="flex items-center gap-2 flex-wrap font-mono text-[11px] pt-1">
-          <span className="px-2.5 py-1 rounded-md bg-amber-950/80 text-amber-300 border border-amber-600/90 font-bold uppercase tracking-wider shadow-sm">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap font-mono text-[9px] sm:text-[10px] md:text-[11px] pt-0.5">
+          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-amber-950/80 text-amber-300 border border-amber-600/90 font-bold uppercase tracking-wider shadow-sm">
             INTERNAL &mdash; TERBATAS
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-zinc-900/90 text-zinc-300 border border-zinc-800 tracking-wider">
-            CUT-OFF DATA: <strong>5 NOV 2026, 03.46 WIB</strong> ({cutOffTime})
+          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-zinc-900/90 text-zinc-300 border border-zinc-800 tracking-wider">
+            CUT-OFF: <strong>5 NOV 2026, 03.46 WIB</strong> ({cutOffTime})
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-zinc-900/90 text-zinc-400 border border-zinc-800">
-            SUMBER TUNGGAL &bull; BELUM DIVERIFIKASI SILANG
+          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-zinc-900/90 text-zinc-400 border border-zinc-800">
+            SUMBER TUNGGAL &bull; BELUM VERIFIKASI SILANG
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-blue-950/80 text-blue-300 border border-blue-700/80 font-bold uppercase tracking-wider">
-            STATUS: RENCANA (RENGIAT), BUKAN REALISASI
+          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-blue-950/80 text-blue-300 border border-blue-700/80 font-bold uppercase tracking-wider">
+            STATUS: RENCANA (RENGIAT)
           </span>
         </div>
       </div>
 
       {/* =========================================================================
-          7 KARTU KPI TINGKAT DIREKSI (Screenshot 1)
+          7 KARTU KPI TINGKAT DIREKSI (Screenshot 1 - Rapi di Mobile & Desktop)
           ========================================================================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 font-mono">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 sm:gap-3 font-mono">
         {/* KPI 1 */}
-        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-zinc-400 uppercase font-semibold leading-tight block">
-            TITIK UNJUK RASA TERENCANA
+        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold leading-tight block truncate">
+            TITIK UNJUK RASA
           </span>
-          <div className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-            {kpiStats.totalAksi} <span className="text-xs font-normal text-zinc-400">aksi</span>
+          <div className="text-lg sm:text-2xl font-black text-white mt-1 flex items-baseline gap-1">
+            {kpiStats.totalAksi} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">aksi</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
             Jakpus 33 &bull; Jaksel 32 &bull; Jakut 3
           </div>
         </div>
 
         {/* KPI 2 */}
-        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-zinc-400 uppercase font-semibold leading-tight block">
-            ESTIMASI MASSA TERENCANA
+        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold leading-tight block truncate">
+            ESTIMASI MASSA
           </span>
-          <div className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-            {kpiStats.totalMassa.toLocaleString('id-ID')} <span className="text-xs font-normal text-zinc-400">orang</span>
+          <div className="text-lg sm:text-2xl font-black text-white mt-1 flex items-baseline gap-1">
+            {kpiStats.totalMassa.toLocaleString('id-ID')} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">orang</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
-            Agregat angka &ldquo;&plusmn;&rdquo; pelapor rengiat
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            Agregat angka &ldquo;&plusmn;&rdquo; pelapor
           </div>
         </div>
 
         {/* KPI 3 */}
-        <div className="bg-[#0b101c] border border-red-900/60 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-red-400 uppercase font-bold leading-tight block">
-            AKSI BERSKALA &ge;100 ORANG
+        <div className="bg-[#0b101c] border border-red-900/60 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-red-400 uppercase font-bold leading-tight block truncate">
+            SKALA &ge;100 ORANG
           </span>
-          <div className="text-2xl font-black text-red-400 mt-1.5 flex items-baseline gap-1">
-            {kpiStats.aksiBesar} <span className="text-xs font-normal text-zinc-400">aksi</span>
+          <div className="text-lg sm:text-2xl font-black text-red-400 mt-1 flex items-baseline gap-1">
+            {kpiStats.aksiBesar} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">aksi</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight truncate">
-            PN Jakpus 250 &bull; Borwita 200 &bull; FSPMI 150
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            PN Jakpus, Borwita, FSPMI
           </div>
         </div>
 
         {/* KPI 4 */}
-        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-zinc-400 uppercase font-semibold leading-tight block">
-            AKSI BERSKALA &le;25 ORANG
+        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold leading-tight block truncate">
+            SKALA &le;25 ORANG
           </span>
-          <div className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-            {kpiStats.aksiKecil} <span className="text-xs font-normal text-zinc-400">aksi</span>
+          <div className="text-lg sm:text-2xl font-black text-white mt-1 flex items-baseline gap-1">
+            {kpiStats.aksiKecil} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">aksi</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
-            {kpiStats.persenKecil}% dari total &mdash; banyak aksi kecil
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            {kpiStats.persenKecil}% &mdash; mayoritas kecil
           </div>
         </div>
 
         {/* KPI 5 */}
-        <div className="bg-[#0b101c] border border-amber-900/60 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-amber-400 uppercase font-bold leading-tight block">
-            EKSPOSUR KORPORASI
+        <div className="bg-[#0b101c] border border-amber-900/60 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-amber-400 uppercase font-bold leading-tight block truncate">
+            EKSPOSUR BISNIS
           </span>
-          <div className="text-2xl font-black text-amber-400 mt-1.5 flex items-baseline gap-1">
-            {kpiStats.eksposurKorporasi} <span className="text-xs font-normal text-zinc-400">aksi</span>
+          <div className="text-lg sm:text-2xl font-black text-amber-400 mt-1 flex items-baseline gap-1">
+            {kpiStats.eksposurKorporasi} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">aksi</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
-            685 orang &bull; menyasar entitas bisnis
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            685 org &bull; gedung korporasi
           </div>
         </div>
 
         {/* KPI 6 */}
-        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-zinc-400 uppercase font-semibold leading-tight block">
-            KLASTER TITIK BERBEDA
+        <div className="bg-[#0b101c] border border-zinc-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold leading-tight block truncate">
+            KLASTER TITIK
           </span>
-          <div className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-            {kpiStats.klasterCount} <span className="text-xs font-normal text-zinc-400">klaster</span>
+          <div className="text-lg sm:text-2xl font-black text-white mt-1 flex items-baseline gap-1">
+            {kpiStats.klasterCount} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">klaster</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
-            Aksi menumpuk di titik yang sama
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            Aksi menumpuk di 1 titik
           </div>
         </div>
 
-        {/* KPI 7 */}
-        <div className="bg-[#0b101c] border border-emerald-900/60 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
-          <span className="text-[10px] text-emerald-400 uppercase font-bold leading-tight block">
+        {/* KPI 7 (Span 2 columns on mobile so it fills the 4th row cleanly) */}
+        <div className="col-span-2 sm:col-span-1 bg-[#0b101c] border border-emerald-900/60 rounded-xl p-2.5 sm:p-3.5 shadow-sm relative overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] text-emerald-400 uppercase font-bold leading-tight block truncate">
             GIAT MASSA PARALEL
           </span>
-          <div className="text-2xl font-black text-emerald-400 mt-1.5 flex items-baseline gap-1">
-            {kpiStats.giatParalelCount} <span className="text-xs font-normal text-zinc-400">giat</span>
+          <div className="text-lg sm:text-2xl font-black text-emerald-400 mt-1 flex items-baseline gap-1">
+            {kpiStats.giatParalelCount} <span className="text-[10px] sm:text-xs font-normal text-zinc-400">giat</span>
           </div>
-          <div className="text-[10px] text-zinc-400 mt-1 leading-tight">
-            {kpiStats.giatParalelMassa.toLocaleString('id-ID')} orang &bull; beban lalu lintas
+          <div className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight truncate">
+            {kpiStats.giatParalelMassa.toLocaleString('id-ID')} org &bull; beban lalin
           </div>
         </div>
       </div>
@@ -522,9 +522,9 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           01. PETA PERGERAKAN & SEBARAN TITIK AKSI + PANEL HOTSPOT (Screenshot 1)
           ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
         {/* Kolom Kiri: Tactical Map Container (8 Kolom) */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-3 sm:space-y-4">
           <TacticalSituationalMap
             reports={reports}
             selectedReportId={selectedReportId}
@@ -537,12 +537,12 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
         </div>
 
         {/* Kolom Kanan: Panel Peringkat Hotspot menurut Akumulasi Massa (4 Kolom) */}
-        <div className="lg:col-span-4 bg-[#090e1a] border border-zinc-800 rounded-2xl p-4 flex flex-col h-[520px] shadow-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div className="lg:col-span-4 bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-4 flex flex-col h-[340px] sm:h-[420px] lg:h-[500px] shadow-xl">
+          <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
               <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-                HOTSPOT MENURUT AKUMULASI MASSA
+                HOTSPOT MENURUT MASSA
               </span>
             </div>
             <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
@@ -550,7 +550,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             </span>
           </div>
 
-          <div className="divide-y divide-zinc-800/60 overflow-y-auto flex-1 mt-2 pr-1 font-mono text-xs space-y-0.5">
+          <div className="divide-y divide-zinc-800/60 overflow-y-auto flex-1 mt-1 pr-1 font-mono text-xs space-y-0.5">
             {rankedHotspots.slice(0, 15).map((hotspot, idx) => {
               const isSelected = selectedReportId === hotspot.id;
               const crowd = hotspot.crowdCountEstimate || 20;
@@ -601,28 +601,28 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           02. PENILAIAN SITUASI (Executive SitRep Analysis) (Screenshot 2)
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 font-mono">
             <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">02</span>
             Penilaian Situasi
           </h2>
-          <span className="text-xs font-mono text-zinc-400 italic">
+          <span className="text-[11px] sm:text-xs font-mono text-zinc-400 italic">
             Analisis &mdash; bukan pernyataan sumber
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {SITREP_FINDINGS.map((finding) => (
             <div 
               key={finding.id}
-              className={`p-4 rounded-xl bg-[#0b1222] border-l-4 ${
+              className={`p-3.5 sm:p-4 rounded-xl bg-[#0b1222] border-l-4 ${
                 finding.accent === 'red' ? 'border-l-red-500 border border-zinc-800/80' :
                 finding.accent === 'amber' ? 'border-l-amber-500 border border-zinc-800/80' :
                 'border-l-cyan-500 border border-zinc-800/80'
               } space-y-1.5`}
             >
-              <h3 className="font-bold text-sm text-white leading-snug">
+              <h3 className="font-bold text-xs sm:text-sm text-white leading-snug">
                 {finding.title}
               </h3>
               <p className="text-xs text-zinc-300 leading-relaxed">
@@ -636,7 +636,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           03. POLA SEBARAN (3 Kolom Bar Breakdown) (Screenshot 3)
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 font-mono">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4 font-mono">
         <div className="border-b border-zinc-800 pb-3">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">03</span>
@@ -644,7 +644,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 text-xs">
           {/* Kolom 1: Jam Mulai Aksi */}
           <div className="space-y-3">
             <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-400 pb-2 border-b border-zinc-800">
@@ -688,8 +688,8 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
                 const widthPct = Math.min(100, (t.jumlah_aksi / maxVal) * 100);
                 return (
                   <div key={t.tema} className="space-y-1">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-zinc-300 font-semibold truncate max-w-[210px]">{t.tema}</span>
+                    <div className="flex justify-between text-[11px] gap-2">
+                      <span className="text-zinc-300 font-semibold truncate flex-1">{t.tema}</span>
                       <span className="text-zinc-400 font-bold text-white whitespace-nowrap">
                         {t.jumlah_aksi} aksi
                       </span>
@@ -717,9 +717,9 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
                 const widthPct = Math.min(100, (k.jumlah_aksi / maxVal) * 100);
                 return (
                   <div key={k.kategori} className="space-y-1">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-zinc-300 font-semibold truncate max-w-[190px]">{k.kategori}</span>
-                      <span className="text-zinc-400">
+                    <div className="flex justify-between text-[11px] gap-2">
+                      <span className="text-zinc-300 font-semibold truncate flex-1">{k.kategori}</span>
+                      <span className="text-zinc-400 whitespace-nowrap">
                         <strong className="text-white">{k.jumlah_aksi}</strong> aksi &bull; &plusmn;{k.massa} org
                       </span>
                     </div>
@@ -745,7 +745,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           04. RUTE PERGERAKAN MASSA
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 font-mono">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4 font-mono">
         <div className="border-b border-zinc-800 pb-3 flex items-center justify-between">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">04</span>
@@ -756,7 +756,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           </span>
         </div>
 
-        <div className="bg-[#0b1222] border border-red-900/60 rounded-xl p-4 space-y-3">
+        <div className="bg-[#0b1222] border border-red-900/60 rounded-xl p-3 sm:p-4 space-y-3">
           <div className="flex items-center gap-2 text-red-400 font-bold text-sm">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
             <span>{MOVEMENT_ROUTE_DATA.label}</span>
@@ -766,9 +766,9 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             <strong>Koridor Rute:</strong> {MOVEMENT_ROUTE_DATA.teks}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px] pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-[11px] pt-1">
             {MOVEMENT_ROUTE_DATA.titik.map((t, idx) => (
-              <div key={idx} className="p-2.5 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center gap-2">
+              <div key={idx} className="p-2 sm:p-2.5 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-red-900 text-red-300 flex items-center justify-center font-bold text-[10px] flex-shrink-0">
                   {idx + 1}
                 </span>
@@ -786,7 +786,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           05. TABEL EKSPOSUR KORPORASI (Khusus Gedung Bisnis & Kantor Swasta/BUMN)
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 font-mono">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4 font-mono">
         <div className="border-b border-zinc-800 pb-3 flex items-center justify-between flex-wrap gap-2">
           <div>
             <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
@@ -802,7 +802,8 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           </span>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-800">
+        {/* Tampilan Desktop & Tablet (Layar Lebar) */}
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-zinc-800">
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-[#0b1222] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-zinc-800">
               <tr>
@@ -857,14 +858,119 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             </tbody>
           </table>
         </div>
+
+        {/* Tampilan Khusus Mobile Phone (Daftar Kartu Taktis Rapi) */}
+        <div className="block md:hidden space-y-2.5">
+          {CORPORATE_EXPOSURES.map((exp) => (
+            <div
+              key={exp.id}
+              onClick={() => {
+                setSelectedReportId(exp.id);
+                setFocusedCoords(exp.coordinates);
+              }}
+              className="p-3 bg-[#070b14] border border-zinc-800 rounded-xl space-y-2 cursor-pointer hover:border-amber-600/70 transition-all"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-white text-xs truncate">
+                    {exp.targetEntity}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">
+                    {exp.region}
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800 whitespace-nowrap">
+                  {exp.timestamp}
+                </span>
+              </div>
+
+              <div className="text-[11px] text-zinc-300 leading-snug">
+                <span className="text-zinc-500 font-bold">Ormas:</span> {exp.partiesInvolved}
+              </div>
+
+              <div className="text-[10px] text-zinc-400 bg-zinc-900/80 p-2 rounded-lg border border-zinc-800 leading-relaxed font-sans">
+                {exp.issueSummary}
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-zinc-800/60 text-[10px]">
+                <span className="font-bold text-amber-400">
+                  Massa: &plusmn;{exp.crowdCountEstimate} orang
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDetailDossierReport(exp);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-cyan-950 text-cyan-300 font-semibold border border-zinc-700 flex items-center gap-1"
+                >
+                  <Eye className="w-3 h-3" />
+                  <span>Detail</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* =========================================================================
+          06. KLASTER TITIK BERBEDA (Aksi Menumpuk di Titik yang Sama)
+          ========================================================================= */}
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4 font-mono">
+        <div className="border-b border-zinc-800 pb-3 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">06</span>
+              Klaster Titik Berbeda
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Sebaran 36 klaster titik konsentrasi di mana aksi unjuk rasa menumpuk pada lokasi gedung atau koridor yang sama
+            </p>
+          </div>
+          <span className="text-xs px-2.5 py-1 rounded bg-red-950 text-red-300 border border-red-800 font-bold">
+            {RAW_UNRAS_DATA.klaster?.length || 36} KLASTER TERIDENTIFIKASI
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 max-h-[380px] overflow-y-auto pr-1">
+          {RAW_UNRAS_DATA.klaster?.map((kl: any, idx: number) => (
+            <div
+              key={idx}
+              onClick={() => setFocusedCoords({ latitude: kl.lat, longitude: kl.lon })}
+              className="p-3 rounded-xl bg-[#0b1222] border border-zinc-800 hover:border-cyan-500/80 transition-all cursor-pointer group space-y-1.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-bold text-white text-xs line-clamp-1 group-hover:text-cyan-300 transition-colors">
+                  {idx + 1}. {kl.n}
+                </div>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap ${
+                  kl.tg === 'TINGGI'
+                    ? 'bg-red-950/80 text-red-400 border border-red-800'
+                    : 'bg-amber-950/80 text-amber-400 border border-amber-800'
+                }`}>
+                  {kl.tg}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <span className="truncate max-w-[150px]">{kl.w}</span>
+                <span className="text-cyan-400 font-bold">{kl.a} aksi</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1 border-t border-zinc-800/60">
+                <span className="text-amber-400 font-semibold">&plusmn;{kl.m} orang</span>
+                <span className="group-hover:text-cyan-400 transition-colors">Fokus Peta &rarr;</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* =========================================================================
           07 & 08: KONTEKS H-1 & GROUND TRUTH + SINYAL LUAR DAERAH
           ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 font-mono">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 font-mono">
         {/* Modul 07: Konteks H-1 */}
-        <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-3">
+        <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 shadow-xl space-y-3">
           <div className="border-b border-zinc-800 pb-2.5 flex items-center justify-between">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">07</span>
@@ -873,7 +979,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             <span className="text-[10px] text-zinc-400 italic">Verifikasi Lapangan</span>
           </div>
 
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             Dasar penilaian bahwa rengiat adalah rencana, bukan realisasi. 4 dari 4 rencana aksi Jakarta Pusat dibatalkan:
           </p>
 
@@ -893,7 +999,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
         </div>
 
         {/* Modul 08: Sinyal Belum Terkonfirmasi & Konteks Luar Jakarta */}
-        <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-3">
+        <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 shadow-xl space-y-3">
           <div className="border-b border-zinc-800 pb-2.5 flex items-center justify-between">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">08</span>
@@ -902,7 +1008,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             <span className="text-[10px] text-cyan-400 font-bold">EARLY WARNING</span>
           </div>
 
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             Perlu pemantauan potensi eskalasi di luar wilayah DKI Jakarta:
           </p>
 
@@ -934,7 +1040,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           09. REKOMENDASI OPERASIONAL TINGKAT DIREKSI
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl space-y-4">
         <div className="border-b border-zinc-800 pb-3 flex items-center justify-between">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 font-mono">
             <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">09</span>
@@ -943,9 +1049,9 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           <span className="text-xs font-mono text-cyan-400 font-bold">ANALISIS MITIGASI</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {EXECUTIVE_RECOMMENDATIONS.map((rec) => (
-            <div key={rec.id} className="p-4 rounded-xl bg-[#0b1222] border border-zinc-800 space-y-1.5">
+            <div key={rec.id} className="p-3.5 sm:p-4 rounded-xl bg-[#0b1222] border border-zinc-800 space-y-1.5">
               <span className="text-[11px] font-mono text-cyan-400 font-bold uppercase tracking-wider block">
                 {rec.category}
               </span>
@@ -960,7 +1066,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
       {/* =========================================================================
           10. BATASAN DATA & JEJAK SUMBER
           ========================================================================= */}
-      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-2 font-mono text-xs text-zinc-400">
+      <div className="bg-[#090e1a] border border-zinc-800 rounded-2xl p-3.5 sm:p-5 shadow-xl space-y-2 font-mono text-xs text-zinc-400">
         <div className="border-b border-zinc-800 pb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-white flex items-center gap-2">
             <span className="text-amber-400 text-xs px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800">10</span>
@@ -984,8 +1090,8 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           MODAL 1: SIMULATOR AI NEWS EXTRACTION
           ========================================================================= */}
       {isInputModalOpen && !isReadOnly && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#090e1a] border border-cyan-500/80 w-full max-w-3xl rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-[#090e1a] border border-cyan-500/80 w-full max-w-3xl rounded-2xl p-4 sm:p-6 space-y-4 shadow-2xl animate-scaleUp max-h-[90vh] overflow-y-auto">
             
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center gap-2">
@@ -1125,13 +1231,13 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           MODAL 2: BAGIKAN LINK PUBLIK
           ========================================================================= */}
       {isShareModalOpen && !isReadOnly && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#090e1a] border border-cyan-500 w-full max-w-lg rounded-2xl p-5 space-y-4 shadow-2xl font-mono text-xs animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-[#090e1a] border border-cyan-500 w-full max-w-lg rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xl font-mono text-xs max-h-[90vh] overflow-y-auto animate-scaleUp">
             
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-cyan-400" />
-                <h3 className="font-bold text-white uppercase text-sm">
+                <h3 className="font-bold text-white uppercase text-xs sm:text-sm">
                   BAGIKAN LAPORAN SITUASIONAL (PUBLIC SHARE)
                 </h3>
               </div>
@@ -1143,7 +1249,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
               </button>
             </div>
 
-            <p className="text-zinc-300 leading-relaxed font-sans">
+            <p className="text-zinc-300 leading-relaxed font-sans text-xs">
               Tautan publik ini dapat diakses oleh siapa saja (Direksi, Klien, atau Pimpinan) <strong>TANPA MEMERLUKAN LOGIN ATAU REGISTRASI</strong>. Seluruh tombol aksi admin otomatis disembunyikan.
             </p>
 
@@ -1170,7 +1276,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             <div className="flex justify-end gap-2 pt-1">
               <button
                 onClick={handleShareToWhatsApp}
-                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-2 text-xs"
               >
                 <Send className="w-4 h-4" />
                 <span>BAGIKAN KE WHATSAPP (PESAN RESMI)</span>
@@ -1185,15 +1291,15 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           MODAL 3: DETAIL DOSSIER REPORT
           ========================================================================= */}
       {detailDossierReport && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#090e1a] border border-zinc-700 w-full max-w-2xl rounded-2xl p-5 space-y-4 shadow-2xl font-mono text-xs animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-[#090e1a] border border-zinc-700 w-full max-w-2xl rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xl font-mono text-xs max-h-[90vh] overflow-y-auto animate-scaleUp">
             
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div>
                 <span className="text-[10px] text-cyan-400 font-bold uppercase">
                   DOSSIER INTELIJEN // {detailDossierReport.reportCode}
                 </span>
-                <h3 className="font-bold text-white text-base mt-0.5">
+                <h3 className="font-bold text-white text-sm sm:text-base mt-0.5">
                   {detailDossierReport.targetEntity}
                 </h3>
               </div>
@@ -1207,11 +1313,11 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
 
             <div className="space-y-3 font-sans text-xs">
               <div className="p-3 bg-[#05070c] border border-zinc-800 rounded-xl space-y-2">
-                <div className="flex justify-between text-zinc-400 font-mono text-[11px]">
+                <div className="flex justify-between text-zinc-400 font-mono text-[10px] sm:text-[11px] flex-wrap gap-1">
                   <span>Waktu: <strong className="text-white">{detailDossierReport.timestamp}</strong></span>
                   <span>Wilayah: <strong className="text-white">{detailDossierReport.region}</strong></span>
                 </div>
-                <div className="flex justify-between text-zinc-400 font-mono text-[11px]">
+                <div className="flex justify-between text-zinc-400 font-mono text-[10px] sm:text-[11px] flex-wrap gap-1">
                   <span>Massa: <strong className="text-amber-400">{detailDossierReport.scaleEstimate}</strong></span>
                   <span>Ancaman: <strong className="text-red-400">{detailDossierReport.threatLevel}</strong></span>
                 </div>
@@ -1248,7 +1354,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             <div className="flex justify-end pt-2 border-t border-zinc-800">
               <button
                 onClick={() => setDetailDossierReport(null)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-bold"
+                className="w-full sm:w-auto px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-bold"
               >
                 Tutup Dossier
               </button>

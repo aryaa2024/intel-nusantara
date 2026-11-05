@@ -451,15 +451,20 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
       </div>
 
       {/* 2. Interactive Control Bar (Time Slider + Toggles) */}
-      <div className="bg-[#0b1222] border border-zinc-800/90 rounded-xl p-3 mt-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+      <div className="bg-[#0b1222] border border-zinc-800/90 rounded-xl p-2.5 sm:p-3 mt-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 text-xs">
         {/* Slider Jam Interaktif */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 text-zinc-300 font-bold uppercase text-[11px]">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span>JAM:</span>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+          <div className="flex items-center justify-between sm:justify-start gap-2">
+            <div className="flex items-center gap-1.5 text-zinc-300 font-bold uppercase text-[10px] sm:text-[11px]">
+              <Clock className="w-3.5 h-3.5 text-cyan-400" />
+              <span>JAM:</span>
+            </div>
+            <span className="font-bold text-cyan-300 text-[10px] sm:hidden">
+              {timeFilterHour !== null ? `≤ ${String(timeFilterHour).padStart(2, '0')}.00 WIB` : 'Seluruh Hari'}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <input 
               type="range"
               min="6"
@@ -467,75 +472,74 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
               step="1"
               value={timeFilterHour ?? 18}
               onChange={(e) => setTimeFilterHour(parseInt(e.target.value, 10))}
-              className="w-32 sm:w-44 accent-cyan-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+              className="flex-1 sm:w-44 accent-cyan-500 cursor-pointer h-2 sm:h-1.5 bg-zinc-800 rounded-lg"
             />
-            <span className="font-bold text-cyan-300 text-[11px] min-w-[85px]">
+            <span className="font-bold text-cyan-300 text-[11px] min-w-[85px] hidden sm:inline-block">
               {timeFilterHour !== null ? `≤ ${String(timeFilterHour).padStart(2, '0')}.00 WIB` : 'Seluruh Hari'}
             </span>
+            <button
+              onClick={() => setTimeFilterHour(null)}
+              className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all whitespace-nowrap ${
+                timeFilterHour === null 
+                  ? 'bg-cyan-950 text-cyan-300 border-cyan-600' 
+                  : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+              }`}
+            >
+              Semua Jam
+            </button>
           </div>
-
-          <button
-            onClick={() => setTimeFilterHour(null)}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all ${
-              timeFilterHour === null 
-                ? 'bg-cyan-950 text-cyan-300 border-cyan-600' 
-                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
-            }`}
-          >
-            Seluruh hari
-          </button>
         </div>
 
         {/* Toggles: Rute Massa, Giat Massa, Reset Tampilan */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full md:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-zinc-800/60">
           <button
             onClick={() => setShowRouteMassa(!showRouteMassa)}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all flex items-center gap-1.5 ${
+            className={`px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[10px] font-bold border transition-all flex items-center justify-center gap-1 ${
               showRouteMassa 
-                ? 'bg-red-950/80 text-red-300 border-red-700 shadow-[0_0_8px_rgba(239,68,68,0.3)]' 
+                ? 'bg-red-950/80 text-red-300 border-red-700 shadow-sm' 
                 : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
             }`}
             title="Tampilkan garis konvoi pergerakan buruh/massa di jalan"
           >
             <Navigation className="w-3 h-3 text-red-400" />
-            <span>Rute massa</span>
+            <span className="truncate">Rute massa</span>
           </button>
 
           <button
             onClick={() => setShowGiatMassa(!showGiatMassa)}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all flex items-center gap-1.5 ${
+            className={`px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[10px] font-bold border transition-all flex items-center justify-center gap-1 ${
               showGiatMassa 
-                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.3)]' 
+                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700 shadow-sm' 
                 : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
             }`}
-            title="Tampilkan titik kegiatan massa non-unras (wisuda, konser, tabligh akbar)"
+            title="Tampilkan titik kegiatan massa non-unras"
           >
             <Sparkles className="w-3 h-3 text-emerald-400" />
-            <span>Giat massa ({PARALLEL_EVENTS_DATA.length})</span>
+            <span className="truncate">Giat ({PARALLEL_EVENTS_DATA.length})</span>
           </button>
 
           <button
             onClick={handleResetJakartaCenter}
-            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 flex items-center gap-1"
+            className="px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[10px] font-bold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 flex items-center justify-center gap-1"
             title="Reset tampilan peta ke pusat Jakarta"
           >
             <RotateCcw className="w-3 h-3 text-cyan-400" />
-            <span>Reset tampilan</span>
+            <span className="truncate">Reset HQ</span>
           </button>
         </div>
       </div>
 
-      {/* 3. Baris Filter Kategori Sasaran */}
-      <div className="flex items-center gap-1.5 flex-wrap pt-2.5 text-[10px]">
+      {/* 3. Baris Filter Kategori Sasaran (Swipeable Horizontal Scroll di HP) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 text-[10px] -mx-1 px-1 flex-nowrap sm:flex-wrap">
         {CATEGORY_COLORS.map(cat => {
           const isSelected = selectedCategory === cat.label;
           return (
             <button
               key={cat.label}
               onClick={() => setSelectedCategory(isSelected ? null : cat.label)}
-              className={`px-2 py-0.5 rounded-full border transition-all flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 ${
                 isSelected 
-                  ? 'bg-zinc-800 text-white font-bold border-white' 
+                  ? 'bg-zinc-800 text-white font-bold border-white shadow-sm' 
                   : 'bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600'
               }`}
             >
@@ -547,7 +551,7 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
       </div>
 
       {/* 4. Map Container */}
-      <div className="relative w-full h-[460px] sm:h-[520px] rounded-xl overflow-hidden mt-3 border border-zinc-800 bg-[#070b14]">
+      <div className="relative w-full h-[320px] sm:h-[420px] lg:h-[500px] rounded-xl overflow-hidden mt-1 border border-zinc-800 bg-[#070b14]">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Fallback Vector Grid if loading */}
