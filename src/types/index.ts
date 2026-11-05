@@ -321,3 +321,45 @@ export interface GeneratedReport {
   actionItems: string[];
   rawApiPayload: StandardAPIResponse;
 }
+
+// ==========================================
+// 5. EXTENDED MODULE: UNIVERSAL SITUATIONAL INTELLIGENCE & PUBLIC SHARE DASHBOARD (MJ-SENTINEL)
+// ==========================================
+export type SituationalThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type SituationalStatus = 'Rencana/Rengiat' | 'Live' | 'Selesai';
+export type OperationalScope = 
+  | 'UNRAS_MASSA'
+  | 'SECURITY_INCIDENT'
+  | 'OBVITNAS_THREAT'
+  | 'DISASTER_HAZARD'
+  | 'PATROL_INTERCEPTION'
+  | 'CRIME_INVESTIGATION'
+  | 'PUBLIC_EVENT';
+
+export interface SituationalReport {
+  id: string;
+  reportCode: string; // e.g. "SITREP-2026-0891"
+  timestamp: string; // e.g. "10:30 WIB"
+  eventDate: string; // YYYY-MM-DD
+  targetEntity: string; // e.g. "Gedung DPR/MPR RI Senayan"
+  region: string; // e.g. "Jakarta Pusat, DKI Jakarta"
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  partiesInvolved: string; // e.g. "Aliansi Mahasiswa & Serikat Buruh KSPI"
+  scaleEstimate: string; // e.g. "± 2.500 Orang / Skala Besar"
+  crowdCountEstimate: number; // e.g. 2500
+  issueSummary: string; // e.g. "Penolakan regulasi UMP & formula ketenagakerjaan..."
+  fullContent?: string;
+  threatLevel: SituationalThreatLevel;
+  status: SituationalStatus;
+  scope: OperationalScope;
+  sourceUrl?: string;
+  loggedBy: string; // e.g. "Aryaa (ARYAA-KOMANDO)"
+  sourceEngine: string; // e.g. "AI News Extractor & OSINT Sentinel v2.4"
+  createdAt: string; // ISO 8601 UTC
+  shareToken?: string;
+  hotspotRank?: number;
+}
+

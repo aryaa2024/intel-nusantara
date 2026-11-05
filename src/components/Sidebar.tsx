@@ -15,7 +15,8 @@ import {
   ShieldAlert,
   ClipboardCheck,
   Navigation,
-  FileText
+  FileText,
+  Radio
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,6 +29,7 @@ export type ActiveTab =
   | 'assessment' 
   | 'tracking' 
   | 'reporting' 
+  | 'situational' 
   | 'users';
 
 interface SidebarProps {
@@ -112,6 +114,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: FileText,
       badge: 'DAILY/WEEK/MO',
       badgeColor: 'bg-amber-950 text-amber-400 border-amber-800/60'
+    },
+    {
+      id: 'situational' as ActiveTab,
+      label: 'Situational Intel & Share',
+      shortLabel: 'Situational Intel',
+      icon: Radio,
+      badge: 'MJ-SENTINEL',
+      badgeColor: 'bg-cyan-950 text-cyan-400 border-cyan-800/60'
     }
   ];
 

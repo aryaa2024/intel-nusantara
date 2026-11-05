@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/Header';
 import { Sidebar, ActiveTab } from './components/Sidebar';
@@ -12,6 +12,7 @@ import { SecurityRiskManagement } from './pages/SecurityRiskManagement';
 import { SecurityAssessmentPage } from './pages/SecurityAssessment';
 import { StaffTrackingPage } from './pages/StaffTracking';
 import { AutomatedReportingPage } from './pages/AutomatedReporting';
+import { SituationalIntelligencePage } from './pages/SituationalIntelligence';
 import { SessionTimeoutManager } from './components/SessionTimeoutManager';
 import { NewsItem, LogEntry } from './types';
 
@@ -23,6 +24,76 @@ const MainLayout: React.FC = () => {
   // Cross-module states
   const [logbookPreload, setLogbookPreload] = useState<Partial<LogEntry> | null>(null);
   const [aiInitialQuery, setAiInitialQuery] = useState<string>('');
+
+  // Mode Berbagi Publik Tanpa Login (Strict Read-Only)
+  const [isPublicShareMode, setIsPublicShareMode] = useState<boolean>(() => {
+    try {
+      const hasQuery = window.location.search.includes('share=');
+      const hasPath = window.location.pathname.includes('/share') || window.location.pathname.includes('/view/dashboard');
+      const hasHash = window.location.hash.includes('share');
+      return hasQuery || hasPath || hasHash;
+    } catch {
+      return false;
+    }
+  });
+
+  // Ambil token share jika ada
+  const publicShareToken = useMemo(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('share')) return searchParams.get('share');
+      if (window.location.hash) {
+        const hashMatch = window.location.hash.match(/share\/(?:report\/)?([^/?#]+)/i);
+        if (hashMatch) return hashMatch[1];
+      }
+      const pathMatch = window.location.pathname.match(/share\/(?:report\/)?([^/?#]+)/i);
+      if (pathMatch) return pathMatch[1];
+    } catch {
+      // fallback
+    }
+    return 'PUBLIC_GUEST';
+  }, []);
+
+  // Monitor perubahan hash URL (misal user paste link hash di browser aktif)
+  useEffect(() => {
+    const handleHashOrUrlChange = () => {
+      const hasQuery = window.location.search.includes('share=');
+      const hasPath = window.location.pathname.includes('/share') || window.location.pathname.includes('/view/dashboard');
+      const hasHash = window.location.hash.includes('share');
+      setIsPublicShareMode(hasQuery || hasPath || hasHash);
+    };
+
+    window.addEventListener('hashchange', handleHashOrUrlChange);
+    window.addEventListener('popstate', handleHashOrUrlChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashOrUrlChange);
+      window.removeEventListener('popstate', handleHashOrUrlChange);
+    };
+  }, []);
+
+  // Keluar dari mode publik ke form login biasa
+  const handleExitToLogin = () => {
+    try {
+      const cleanUrl = window.location.origin + window.location.pathname.replace(/\/share.*$/, '');
+      window.history.replaceState({}, document.title, cleanUrl);
+    } catch {
+      // fallback
+    }
+    setIsPublicShareMode(false);
+  };
+
+  // Jika diakses via Public Share Link, render langsung TANPA REQUIRE LOGIN
+  if (isPublicShareMode) {
+    return (
+      <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
+        <SituationalIntelligencePage 
+          isReadOnly={true}
+          publicShareToken={publicShareToken}
+          onExitToLogin={handleExitToLogin}
+        />
+      </div>
+    );
+  }
 
   // If user is not authenticated, render Login page (Protected Route)
   if (!isAuthenticated) {
@@ -132,6 +203,10 @@ const MainLayout: React.FC = () => {
 
           {activeTab === 'reporting' && (
             <AutomatedReportingPage />
+          )}
+
+          {activeTab === 'situational' && (
+            <SituationalIntelligencePage isReadOnly={false} />
           )}
 
           {/* Admin User Management */}
