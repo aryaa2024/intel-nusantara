@@ -30,9 +30,64 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const leafletMapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const tileLayersRef = useRef<any[]>([]);
   const [isLeafletReady, setIsLeafletReady] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH'>('ALL');
+  const [basemapMode, setBasemapMode] = useState<'dark' | 'satellite' | 'street'>('dark');
   const [hoveredReport, setHoveredReport] = useState<SituationalReport | null>(null);
+
+  // Fungsi ganti tema basemap peta (bebas watermark & tanpa API key)
+  const switchBasemap = (mode: 'dark' | 'satellite' | 'street') => {
+    const L = (window as any).L;
+    const map = leafletMapInstanceRef.current;
+    if (!L || !map) return;
+
+    // Bersihkan tile layer sebelumnya
+    tileLayersRef.current.forEach(layer => {
+      try {
+        map.removeLayer(layer);
+      } catch {
+        // ignore
+      }
+    });
+    tileLayersRef.current = [];
+
+    if (mode === 'dark') {
+      // Esri World Dark Gray Canvas + Reference Labels (Tactical Dark Mode resmi bebas watermark)
+      const base = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        attribution: 'Esri, HERE, Garmin, © OpenStreetMap'
+      }).addTo(map);
+
+      const ref = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16
+      }).addTo(map);
+
+      tileLayersRef.current = [base, ref];
+    } else if (mode === 'satellite') {
+      // Esri World Imagery (Foto Udara Satelit Reconnaissance Resolusi Tinggi)
+      const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: 'Esri, Maxar, Earthstar Geographics'
+      }).addTo(map);
+
+      const ref = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18
+      }).addTo(map);
+
+      tileLayersRef.current = [sat, ref];
+    } else {
+      // OpenStreetMap Standard Jalan & Topografi
+      const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      tileLayersRef.current = [osm];
+    }
+
+    setBasemapMode(mode);
+  };
 
   // Initialize or check Leaflet on mount
   useEffect(() => {
@@ -49,17 +104,14 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
               attributionControl: false
             });
 
-            // Dark CartoDB Matter Tile Layer (Tactical Dark Mode)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-              subdomains: 'abcd',
-              maxZoom: 19
-            }).addTo(map);
-
             // Tambahkan kontrol zoom kustom di sudut kanan bawah
             L.control.zoom({ position: 'bottomright' }).addTo(map);
 
             leafletMapInstanceRef.current = map;
             setIsLeafletReady(true);
+
+            // Terapkan default layer Dark Tactical (Esri World Dark Gray Canvas)
+            switchBasemap('dark');
           } catch (e) {
             console.warn('Leaflet init fallback to tactical vector canvas', e);
             setIsLeafletReady(false);
@@ -203,8 +255,49 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
           </div>
         </div>
 
-        {/* Filter on Map & Quick Reset */}
+        {/* Basemap Switcher & Threat Filter & Quick Reset */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Basemap Layer Mode Switcher */}
+          <div className="flex items-center bg-black/80 border border-zinc-800 rounded-xl p-0.5 text-[10px]">
+            <button
+              onClick={() => switchBasemap('dark')}
+              className={`px-2 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                basemapMode === 'dark'
+                  ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/80 shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+              title="Peta Taktis Gelap Komando (Bebas Watermark)"
+            >
+              <Layers className="w-3 h-3 text-cyan-400" />
+              <span>DARK</span>
+            </button>
+            <button
+              onClick={() => switchBasemap('satellite')}
+              className={`px-2 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                basemapMode === 'satellite'
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/80 shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+              title="Foto Udara Satelit Reconnaissance Resolusi Tinggi"
+            >
+              <Compass className="w-3 h-3 text-emerald-400" />
+              <span>SATELIT</span>
+            </button>
+            <button
+              onClick={() => switchBasemap('street')}
+              className={`px-2 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                basemapMode === 'street'
+                  ? 'bg-blue-950 text-blue-300 border border-blue-700/80 shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+              title="Peta Topografi & Jalan OpenStreetMap"
+            >
+              <MapPin className="w-3 h-3 text-blue-400" />
+              <span>STREET</span>
+            </button>
+          </div>
+
+          {/* Filter on Map & Quick Reset */}
           <div className="flex items-center bg-black/60 border border-zinc-800 rounded-xl p-0.5 text-[10px]">
             <button
               onClick={() => setActiveFilter('ALL')}
@@ -275,7 +368,7 @@ export const TacticalSituationalMap: React.FC<TacticalSituationalMapProps> = ({
                 MEMPERSIAPKAN TACTICAL MAP CONTAINER...
               </div>
               <p className="text-xs text-zinc-400 max-w-sm">
-                Menghubungkan ke satelit geospasial CartoDB Dark Matter & OpenStreetMap Indonesia.
+                Menghubungkan ke satelit geospasial Esri Tactical Dark & OpenStreetMap Indonesia.
               </p>
             </div>
           </div>
