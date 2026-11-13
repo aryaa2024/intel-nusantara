@@ -668,3 +668,41 @@ Area pengawasan intensif Ring 1:
 - 110 – Sentra Pelayanan Kepolisian`
   }
 ];
+
+// =========================================================================
+// HELPER SERIALISASI & DEKODING PAYLOAD TAUTAN BERBAGI LINTAS PERANGKAT
+// (Memungkinkan orang lain membuka data terbaru tanpa butuh database server)
+// =========================================================================
+export function encodeSharePayload(data: any): string {
+  try {
+    const jsonStr = JSON.stringify(data);
+    const utf8Bytes = new TextEncoder().encode(jsonStr);
+    let binary = '';
+    utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  } catch (e) {
+    console.error('Failed to encode share payload', e);
+    return '';
+  }
+}
+
+export function decodeSharePayload(encoded: string): any {
+  try {
+    if (!encoded) return null;
+    let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const jsonStr = new TextDecoder().decode(bytes);
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('Failed to decode share payload', e);
+    return null;
+  }
+}
+

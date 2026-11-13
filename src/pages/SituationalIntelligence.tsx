@@ -10,6 +10,7 @@ import {
   Filter, 
   CheckCircle2, 
   Clock, 
+  Calendar,
   Share2, 
   PlusCircle, 
   Sparkles, 
@@ -59,7 +60,9 @@ import {
   DEFAULT_JAKPRO_ADVISORY, 
   DEFAULT_JAKPRO_BROADCAST_TEXT, 
   BROADCAST_PRESETS, 
-  parseSmartBroadcastText 
+  parseSmartBroadcastText,
+  encodeSharePayload,
+  decodeSharePayload
 } from '../utils/smartBroadcastParser';
 import { ExecutiveSafetyAdvisoryCard } from '../components/ExecutiveSafetyAdvisoryCard';
 import { 
@@ -92,9 +95,33 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
 }) => {
   const { currentUser } = useAuth();
 
+  // 0. Ekstraksi Payload URL jika dibuka dari Link Publik orang lain (Lintas Perangkat)
+  const urlPayload = useMemo(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const dParam = searchParams.get('d');
+      if (dParam) {
+        return decodeSharePayload(dParam);
+      }
+      if (window.location.hash) {
+        const hashMatch = window.location.hash.match(/[?&#]d=([^&]+)/);
+        if (hashMatch) {
+          return decodeSharePayload(hashMatch[1]);
+        }
+      }
+    } catch (e) {
+      console.error('Gagal decode share payload', e);
+    }
+    return null;
+  }, []);
+
   // State Data Laporan Situasional
   const [reports, setReports] = useState<SituationalReport[]>(() => {
     try {
+      // Jika link dibagikan oleh orang lain dan membawa laporan baru
+      if (urlPayload && Array.isArray(urlPayload.customReports) && urlPayload.customReports.length > 0) {
+        return [...urlPayload.customReports, ...INITIAL_SITUATIONAL_REPORTS];
+      }
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -127,6 +154,10 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
   // State Smart Broadcast & Safety Advisory Parser
   const [activeSafetyAdvisory, setActiveSafetyAdvisory] = useState<SafetyAdvisory | null>(() => {
     try {
+      // Jika link dibagikan membawa advisory baru
+      if (urlPayload && urlPayload.advisory && urlPayload.advisory.title) {
+        return urlPayload.advisory;
+      }
       const saved = localStorage.getItem(ADVISORY_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -154,6 +185,50 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
 
   // Live Timestamp Cut-Off
   const [cutOffTime, setCutOffTime] = useState<string>('');
+
+  // Tanggal Aktif Dasbor yang Otomatis Dinamis (Tidak Pernah Terkunci ke Tanggal Lama)
+  const displayActiveDate = useMemo(() => {
+    // 1. Jika ada Safety Advisory aktif
+    if (activeSafetyAdvisory && activeSafetyAdvisory.dateFormatted) {
+      return activeSafetyAdvisory.dateFormatted;
+    }
+    // 2. Jika ada payload tanggal dari share link
+    if (urlPayload && urlPayload.date) {
+      return urlPayload.date;
+    }
+    // 3. Cek laporan terbaru
+    if (reports && reports.length > 0 && reports[0].eventDate) {
+      try {
+        const parts = reports[0].eventDate.split('-');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          if (!isNaN(d.getTime())) {
+            return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+          }
+        }
+      } catch {}
+    }
+    // 4. Default ke tanggal hari ini
+    const now = new Date();
+    return now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }, [activeSafetyAdvisory, urlPayload, reports]);
+
+  // Simpan data dari URL payload ke localStorage orang lain secara otomatis
+  useEffect(() => {
+    if (urlPayload) {
+      if (urlPayload.advisory) {
+        try {
+          localStorage.setItem(ADVISORY_STORAGE_KEY, JSON.stringify(urlPayload.advisory));
+        } catch {}
+      }
+      if (Array.isArray(urlPayload.customReports) && urlPayload.customReports.length > 0) {
+        try {
+          const merged = [...urlPayload.customReports, ...INITIAL_SITUATIONAL_REPORTS];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        } catch {}
+      }
+    }
+  }, [urlPayload]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -275,11 +350,20 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
     setSourceUrlInput(preset.url);
   };
 
-  // Buka Modal Share Link Publik
+  // Buka Modal Share Link Publik (Membawa Data Otomatis ke HP Orang Lain)
   const handleOpenShareModal = () => {
     const origin = window.location.origin;
     const token = `share_${Date.now().toString().slice(-6)}`;
-    const shareUrl = `${origin}/?share=${token}#/share/report/${token}`;
+    
+    // Paketkan data aktif untuk dikirim ke perangkat orang lain
+    const payload = {
+      advisory: activeSafetyAdvisory,
+      customReports: reports.slice(0, 15),
+      date: displayActiveDate,
+      timestamp: Date.now()
+    };
+    const encodedData = encodeSharePayload(payload);
+    const shareUrl = `${origin}/?share=${token}&d=${encodedData}#/share/report/${token}`;
     setGeneratedShareUrl(shareUrl);
     setIsShareModalOpen(true);
     setCopiedShareLink(false);
@@ -300,17 +384,18 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
 
     const message = `*🚨 [MJ-SENTINEL - EXECUTIVE SITUATIONAL REPORT]*
 *SITUATION REPORT: SITUASI JAKARTA & UNJUK RASA*
+*Tanggal / Periode:* ${displayActiveDate}
 *Klasifikasi:* INTERNAL - TERBATAS // TINGKAT DIREKSI
-*Cut-Off Data:* 5 Nov 2026, 03.46 WIB (${cutOffTime})
-*Status Data:* Rencana (Rengiat), Bukan Realisasi
+*Cut-Off Telemetri:* ${displayActiveDate} (${cutOffTime})
+*Status Data:* Rencana (Rengiat) & Himbauan Keselamatan
 
 *Ringkasan Eksekutif:*
-• Titik Rencana Aksi: ${totalReports} Titik (Jakpus 33, Jaksel 32, Jakut 3)
+• Titik Rencana Aksi: ${totalReports} Titik (Jakpus, Jaksel, Jakut)
 • Estimasi Agregat Massa: ± ${totalCrowd.toLocaleString('id-ID')} Orang
-• Aksi Skala Besar (≥100 org): 4 Aksi (PN Jakpus 250, Borwita 200, FSPMI 150)
-• Aksi Skala Kecil (≤25 org): 56 Aksi (82% dari total)
-• Eksposur Korporasi Bisnis: ${corporateCount} Aksi (685 orang menyasar gedung komersial)
-• Puncak Jam Rawan: 10.00 & 13.00 WIB
+• Aksi Skala Besar (≥100 org): 4 Aksi Utama
+• Aksi Skala Kecil (≤25 org): Mayoritas tersebar di gedung pemerintah & korporasi
+• Eksposur Korporasi Bisnis: ${corporateCount} Gedung Komersial
+• Himbauan Keselamatan: Aktif (Lihat panduan kantor & perjalanan di dashboard)
 
 Buka Dasbor Situasional Interaktif (Langsung Tanpa Login):
 👉 ${generatedShareUrl}
@@ -486,10 +571,13 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
         <div>
           <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Situasi Jakarta &amp; Unjuk Rasa<br />
-            <span className="text-slate-300 font-semibold text-base sm:text-xl lg:text-2xl">Kamis, 5 November 2026</span>
+            <span className="text-cyan-400 font-bold text-base sm:text-xl lg:text-2xl flex items-center gap-2 mt-1">
+              <Calendar className="w-5 h-5 text-amber-400" />
+              <span>{displayActiveDate}</span>
+            </span>
           </h1>
           <p className="text-[11px] sm:text-xs md:text-sm text-zinc-400 mt-1 max-w-4xl leading-relaxed">
-            Gambaran situasional tingkat direksi atas 68 titik unjuk rasa terencana di DKI Jakarta, sebaran geografis, puncak waktu, rute pergerakan massa, dan eksposur terhadap entitas korporasi.
+            Gambaran situasional tingkat direksi atas {reports.length} titik unjuk rasa &amp; area potensi aksi di DKI Jakarta, sebaran geografis, puncak waktu, rute pergerakan massa, dan eksposur terhadap entitas korporasi.
           </p>
         </div>
 
@@ -499,7 +587,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
             INTERNAL &mdash; TERBATAS
           </span>
           <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-zinc-900/90 text-zinc-300 border border-zinc-800 tracking-wider">
-            CUT-OFF: <strong>5 NOV 2026, 03.46 WIB</strong> ({cutOffTime})
+            CUT-OFF: <strong>{displayActiveDate.toUpperCase()}</strong> ({cutOffTime})
           </span>
           <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-zinc-900/90 text-zinc-400 border border-zinc-800">
             SUMBER TUNGGAL &bull; BELUM VERIFIKASI SILANG
@@ -1181,7 +1269,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
         </div>
 
         <p className="leading-relaxed">
-          <strong>Batasan yang wajib dibaca sebelum dokumen ini dipakai sebagai dasar keputusan:</strong> Rengiat adalah rencana, bukan realisasi. Pada 4 November 2026, 4 dari 4 rencana aksi Jakarta Pusat dibatalkan. Tingkat realisasi 5 November tidak dapat diprediksi dari data ini. Seluruh angka massa adalah agregat angka perkiraan pelapor rengiat.
+          <strong>Batasan yang wajib dibaca sebelum dokumen ini dipakai sebagai dasar keputusan:</strong> Rengiat adalah rencana, bukan realisasi. Pada preseden H-1, sejumlah rencana aksi dibatalkan. Tingkat realisasi lapangan dinamis dan dapat berubah sewaktu-waktu. Seluruh angka massa adalah agregat angka perkiraan pelapor rengiat.
         </p>
 
         <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-[10px] text-zinc-500 flex-wrap gap-2">
