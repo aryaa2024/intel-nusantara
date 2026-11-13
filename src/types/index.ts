@@ -363,3 +363,61 @@ export interface SituationalReport {
   hotspotRank?: number;
 }
 
+// 6. EXTENDED MODULE: SMART BROADCAST & SAFETY ADVISORY PARSER
+export interface SafetyAdvisoryLocationPoint {
+  name: string;
+  cleanName: string;
+  region: string;
+  elementCount?: string;
+  crowdEstimate?: string;
+  crowdCount?: number;
+  threatLevel: SituationalThreatLevel;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  details?: string;
+}
+
+export interface SafetyAdvisoryEmergencyContact {
+  number: string;
+  label: string;
+  description?: string;
+}
+
+export interface SafetyAdvisoryCluster {
+  label: string;
+  elements: string;
+  crowd: string;
+}
+
+export interface SafetyAdvisoryActionOverview {
+  totalElements: string;
+  totalCrowd: string;
+  locationClusters: SafetyAdvisoryCluster[];
+  issueClusters: SafetyAdvisoryCluster[];
+}
+
+export interface SafetyAdvisory {
+  id: string;
+  advisoryCode: string;
+  title: string;
+  subtitle?: string;
+  targetAudience: string;
+  dateFormatted: string;
+  eventDateISO: string;
+  summary: string;
+  locations: SafetyAdvisoryLocationPoint[];
+  actionOverview?: SafetyAdvisoryActionOverview;
+  generalPoints: string[];
+  officePoints: string[];
+  commutePoints: string[];
+  avoidPoints: string[];
+  emergencyContacts: SafetyAdvisoryEmergencyContact[];
+  closingNotes?: string;
+  rawText: string;
+  parsedAt: string;
+  isActive: boolean;
+  sourceOperator: string;
+}
+

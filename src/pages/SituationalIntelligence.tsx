@@ -47,13 +47,21 @@ import {
   SituationalReport, 
   SituationalThreatLevel, 
   SituationalStatus, 
-  OperationalScope 
+  OperationalScope,
+  SafetyAdvisory
 } from '../types';
 import { 
   extractSituationalDataFromText, 
   SIMULATION_PRESETS, 
   INITIAL_SITUATIONAL_REPORTS 
 } from '../utils/aiNewsExtractor';
+import { 
+  DEFAULT_JAKPRO_ADVISORY, 
+  DEFAULT_JAKPRO_BROADCAST_TEXT, 
+  BROADCAST_PRESETS, 
+  parseSmartBroadcastText 
+} from '../utils/smartBroadcastParser';
+import { ExecutiveSafetyAdvisoryCard } from '../components/ExecutiveSafetyAdvisoryCard';
 import { 
   RAW_UNRAS_DATA,
   UNRAS_REPORTS, 
@@ -75,6 +83,7 @@ interface SituationalIntelligencePageProps {
 }
 
 const STORAGE_KEY = 'intel_situational_reports_v2';
+const ADVISORY_STORAGE_KEY = 'intel_safety_advisory_active_v1';
 
 export const SituationalIntelligencePage: React.FC<SituationalIntelligencePageProps> = ({
   isReadOnly = false,
@@ -114,6 +123,25 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
   const [sourceUrlInput, setSourceUrlInput] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionResult, setExtractionResult] = useState<SituationalReport | null>(null);
+
+  // State Smart Broadcast & Safety Advisory Parser
+  const [activeSafetyAdvisory, setActiveSafetyAdvisory] = useState<SafetyAdvisory | null>(() => {
+    try {
+      const saved = localStorage.getItem(ADVISORY_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.title) {
+          return parsed;
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_JAKPRO_ADVISORY;
+  });
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [rawBroadcastInput, setRawBroadcastInput] = useState(DEFAULT_JAKPRO_BROADCAST_TEXT);
+  const [isParsingBroadcast, setIsParsingBroadcast] = useState(false);
 
   // State Modal Share Link Publik
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -156,6 +184,53 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
     } catch {
       // storage error
     }
+  };
+
+  const saveSafetyAdvisory = (advisory: SafetyAdvisory | null) => {
+    setActiveSafetyAdvisory(advisory);
+    try {
+      if (advisory) {
+        localStorage.setItem(ADVISORY_STORAGE_KEY, JSON.stringify(advisory));
+      } else {
+        localStorage.removeItem(ADVISORY_STORAGE_KEY);
+      }
+    } catch {
+      // storage error
+    }
+  };
+
+  // Eksekusi Smart Broadcast WhatsApp Parser (Multi-Titik + Poster Komando)
+  const handleRunBroadcastParsing = () => {
+    if (!rawBroadcastInput.trim()) {
+      showToast('Harap tempelkan teks broadcast WhatsApp terlebih dahulu!');
+      return;
+    }
+
+    setIsParsingBroadcast(true);
+    setTimeout(() => {
+      try {
+        const loggedCallsign = currentUser ? `${currentUser.callsign} (${currentUser.username})` : 'Bang Madi // Intel Nusantara Command';
+        const { advisory, extractedReports } = parseSmartBroadcastText(rawBroadcastInput, loggedCallsign);
+
+        // 1. Simpan Safety Advisory aktif (Poster Komando)
+        saveSafetyAdvisory(advisory);
+
+        // 2. Plot semua titik lokasi 📍 ke Peta Taktis Leaflet & Tabel
+        if (extractedReports.length > 0) {
+          const updated = [...extractedReports, ...reports];
+          saveReports(updated);
+          setSelectedReportId(extractedReports[0].id);
+          setFocusedCoords(extractedReports[0].coordinates);
+        }
+
+        setIsBroadcastModalOpen(false);
+        showToast(`⚡ Sukses! ${extractedReports.length} titik lokasi otomatis diplot ke peta & Himbauan Keselamatan diperbarui!`);
+      } catch (err) {
+        showToast('Gagal memproses teks broadcast. Periksa kembali isi teks.');
+      } finally {
+        setIsParsingBroadcast(false);
+      }
+    }, 650);
   };
 
   // Eksekusi AI News Parser
@@ -365,7 +440,19 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
 
           {/* Action Controls for Operator (Hidden in Read-Only Mode) */}
           {!isReadOnly && (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+              <button
+                onClick={() => {
+                  setRawBroadcastInput(DEFAULT_JAKPRO_BROADCAST_TEXT);
+                  setIsBroadcastModalOpen(true);
+                }}
+                className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-1.5 border border-red-400/30"
+                title="Input Broadcast WhatsApp Multi-Titik & Buat Poster Himbauan Resmi"
+              >
+                <Radio className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
+                <span className="truncate">INPUT HIMBAUAN WA</span>
+              </button>
+
               <button
                 onClick={() => setIsInputModalOpen(true)}
                 className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center justify-center gap-1.5"
@@ -518,6 +605,24 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          OFFICIAL SAFETY ADVISORY // POSTER HIMBAUAN KESELAMATAN EKSEKUTIF
+          ========================================================================= */}
+      {activeSafetyAdvisory && (
+        <ExecutiveSafetyAdvisoryCard
+          advisory={activeSafetyAdvisory}
+          isReadOnly={isReadOnly}
+          onFocusLocation={(coords) => setFocusedCoords(coords)}
+          onSharePublicLink={handleOpenShareModal}
+          onDismissAdvisory={() => {
+            if (window.confirm('Hapus / nonaktifkan banner Himbauan Keselamatan ini?')) {
+              saveSafetyAdvisory(null);
+              showToast('Himbauan keselamatan dinonaktifkan.');
+            }
+          }}
+        />
+      )}
 
       {/* =========================================================================
           01. PETA PERGERAKAN & SEBARAN TITIK AKSI + PANEL HOTSPOT (Screenshot 1)
@@ -1085,6 +1190,110 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
           <span>SHA-256 Hash: <code className="text-cyan-400">e89a3f...d194c2</code></span>
         </div>
       </div>
+
+      {/* =========================================================================
+          MODAL 0: SMART BROADCAST & SAFETY ADVISORY PARSER (MULTI-TITIK + POSTER)
+          ========================================================================= */}
+      {isBroadcastModalOpen && !isReadOnly && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-[#090e1a] border border-red-500/80 w-full max-w-3xl rounded-2xl p-4 sm:p-6 space-y-4 shadow-2xl animate-scaleUp max-h-[90vh] overflow-y-auto">
+            
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Radio className="w-5 h-5 text-red-500 animate-pulse" />
+                <div>
+                  <h3 className="font-mono text-sm sm:text-base font-bold text-white uppercase flex items-center gap-2 flex-wrap">
+                    <span>SMART BROADCAST &amp; SAFETY ADVISORY PARSER</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800 font-normal">
+                      MULTI-TITIK &bull; POSTER RESMI
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
+                    Tempelkan teks broadcast WhatsApp utuh. Sistem otomatis memetakan seluruh titik 📍 ke peta taktis dan menghasilkan poster himbauan resmi.
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsBroadcastModalOpen(false)}
+                className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 flex-shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Presets 1-Klik */}
+            <div>
+              <label className="block text-[11px] font-mono text-amber-400 uppercase font-semibold mb-1.5">
+                PRESET CONTOH BROADCAST WHATSAPP (1-KLIK):
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {BROADCAST_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => setRawBroadcastInput(preset.rawText)}
+                    className="p-2.5 rounded-xl bg-zinc-900/90 hover:bg-red-950/60 border border-zinc-800 hover:border-red-600 text-left transition-all group"
+                  >
+                    <div className="text-xs font-bold text-zinc-200 group-hover:text-red-300 truncate">
+                      {preset.label}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mt-0.5 line-clamp-1">
+                      {preset.desc}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Textarea Input */}
+            <div className="space-y-3 font-mono text-xs">
+              <div>
+                <label className="block text-zinc-300 mb-1 font-semibold flex items-center justify-between flex-wrap gap-1">
+                  <span>TEKS LENGKAP BROADCAST WHATSAPP / SURAT EDARAN:</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">
+                    Mendukung emoji 📍 titik lokasi, 📅 tanggal, ⚠️ himbauan, 🏢 kantor, 📞 kontak
+                  </span>
+                </label>
+                <textarea
+                  rows={9}
+                  placeholder="Tempelkan pesan broadcast WhatsApp lengkap di sini..."
+                  value={rawBroadcastInput}
+                  onChange={(e) => setRawBroadcastInput(e.target.value)}
+                  className="w-full bg-[#05070c] border border-zinc-800 focus:border-red-500 rounded-xl p-3 text-zinc-200 placeholder-zinc-600 focus:outline-none text-xs font-sans leading-relaxed transition-colors"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-zinc-800">
+                <div className="text-[11px] text-zinc-400 font-sans flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>Dual Output: Titik langsung diplot ke Leaflet Map &amp; Poster Komando aktif</span>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setIsBroadcastModalOpen(false)}
+                    className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white font-bold"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunBroadcastParsing}
+                    disabled={isParsingBroadcast || !rawBroadcastInput.trim()}
+                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-red-950/60 disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    <Radio className="w-4 h-4 text-yellow-300" />
+                    <span>{isParsingBroadcast ? 'MEMPROSES...' : 'PROSES BROADCAST & PLOT KE PETA'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           MODAL 1: SIMULATOR AI NEWS EXTRACTION
