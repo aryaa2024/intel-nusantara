@@ -372,9 +372,101 @@ export interface ParseBroadcastResult {
   extractedReports: SituationalReport[];
 }
 
+// =========================================================================
+// HELPER DETEKSI TANGGAL BAHASA INDONESIA OTOMATIS DARI TEKS
+// =========================================================================
+export function detectIndonesianDateFromText(text: string): { formatted: string; iso: string } {
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // 1. Cek pola hari + tanggal + bulan + tahun (contoh: "Selasa, 10 November 2026" atau "Selasa, 10 Nov 2026")
+  const fullPattern = /(Senin|Selasa|Rabu|Kamis|Jum[']?at|Sabtu|Minggu)[,\s]+(\d{1,2})\s+([a-zA-Z]+)(?:\s+(\d{4}))?/i;
+  const matchFull = text.match(fullPattern);
+  if (matchFull) {
+    const rawDate = parseInt(matchFull[2], 10);
+    const rawMonthStr = matchFull[3].toLowerCase();
+    const rawYear = matchFull[4] ? parseInt(matchFull[4], 10) : currentYear;
+
+    const monthIndex = months.findIndex(m => m.toLowerCase().startsWith(rawMonthStr.slice(0, 3)));
+    if (monthIndex !== -1 && rawDate >= 1 && rawDate <= 31) {
+      const d = new Date(rawYear, monthIndex, rawDate);
+      const dayName = days[d.getDay()];
+      const iso = `${rawYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(rawDate).padStart(2, '0')}`;
+      return {
+        formatted: `${dayName}, ${rawDate} ${months[monthIndex]} ${rawYear}`,
+        iso
+      };
+    }
+  }
+
+  // 2. Cek pola tanggal + bulan + tahun (contoh: "10 November 2026" atau "10 Nov 2026")
+  const dateMonthPattern = /(\d{1,2})\s+([a-zA-Z]+)(?:\s+(\d{4}))?/i;
+  const matchDM = text.match(dateMonthPattern);
+  if (matchDM) {
+    const rawDate = parseInt(matchDM[1], 10);
+    const rawMonthStr = matchDM[2].toLowerCase();
+    const rawYear = matchDM[3] ? parseInt(matchDM[3], 10) : currentYear;
+
+    const monthIndex = months.findIndex(m => m.toLowerCase().startsWith(rawMonthStr.slice(0, 3)));
+    if (monthIndex !== -1 && rawDate >= 1 && rawDate <= 31) {
+      const d = new Date(rawYear, monthIndex, rawDate);
+      const dayName = days[d.getDay()];
+      const iso = `${rawYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(rawDate).padStart(2, '0')}`;
+      return {
+        formatted: `${dayName}, ${rawDate} ${months[monthIndex]} ${rawYear}`,
+        iso
+      };
+    }
+  }
+
+  // 3. Cek pola numerik: DD/MM/YYYY atau DD-MM-YYYY
+  const numericPattern = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/;
+  const matchNum = text.match(numericPattern);
+  if (matchNum) {
+    const rawDate = parseInt(matchNum[1], 10);
+    const rawMonth = parseInt(matchNum[2], 10) - 1;
+    const rawYear = parseInt(matchNum[3], 10);
+    if (rawMonth >= 0 && rawMonth <= 11 && rawDate >= 1 && rawDate <= 31) {
+      const d = new Date(rawYear, rawMonth, rawDate);
+      const dayName = days[d.getDay()];
+      const iso = `${rawYear}-${String(rawMonth + 1).padStart(2, '0')}-${String(rawDate).padStart(2, '0')}`;
+      return {
+        formatted: `${dayName}, ${rawDate} ${months[rawMonth]} ${rawYear}`,
+        iso
+      };
+    }
+  }
+
+  // 4. Cek kata "besok"
+  if (text.toLowerCase().includes('besok')) {
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const dayName = days[tomorrow.getDay()];
+    const iso = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    return {
+      formatted: `${dayName}, ${tomorrow.getDate()} ${months[tomorrow.getMonth()]} ${tomorrow.getFullYear()}`,
+      iso
+    };
+  }
+
+  // 5. Default Fallback: Hari Ini (Live Real-Time)
+  const todayDay = days[now.getDay()];
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return {
+    formatted: `${todayDay}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`,
+    iso: todayIso
+  };
+}
+
 export function parseSmartBroadcastText(
   rawText: string,
-  operatorCallsign: string = 'Operator Komando (Bang Madi)'
+  operatorCallsign: string = 'Operator Komando (Bang Madi)',
+  overrideDateFormatted?: string
 ): ParseBroadcastResult {
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
@@ -403,17 +495,10 @@ export function parseSmartBroadcastText(
     }
   }
 
-  // 3. Ekstraksi Tanggal
-  let dateFormatted = 'Selasa, 10 November 2026';
-  let eventDateISO = '2026-11-10';
-  for (const line of lines) {
-    if (line.includes('📅') || line.toLowerCase().includes('pada hari') || line.toLowerCase().includes('pada:')) {
-      const dateMatch = line.replace(/[*_~`📅]/g, '').replace(/pada\s*:/i, '').trim();
-      if (dateMatch.length >= 6) {
-        dateFormatted = dateMatch;
-      }
-    }
-  }
+  // 3. Ekstraksi Tanggal Otomatis (Cerdas & Fleksibel)
+  const autoDate = detectIndonesianDateFromText(rawText);
+  let dateFormatted = overrideDateFormatted && overrideDateFormatted.trim() ? overrideDateFormatted.trim() : autoDate.formatted;
+  let eventDateISO = autoDate.iso;
 
   // 4. Ekstraksi Titik Lokasi (Mendeteksi 📍, bullet, atau kata kunci lokasi)
   const detectedLocationNames: string[] = [];

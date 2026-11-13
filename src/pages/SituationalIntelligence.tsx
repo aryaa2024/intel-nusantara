@@ -61,6 +61,7 @@ import {
   DEFAULT_JAKPRO_BROADCAST_TEXT, 
   BROADCAST_PRESETS, 
   parseSmartBroadcastText,
+  detectIndonesianDateFromText,
   encodeSharePayload,
   decodeSharePayload
 } from '../utils/smartBroadcastParser';
@@ -173,6 +174,36 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
   const [rawBroadcastInput, setRawBroadcastInput] = useState(DEFAULT_JAKPRO_BROADCAST_TEXT);
   const [isParsingBroadcast, setIsParsingBroadcast] = useState(false);
+  const [customBroadcastDate, setCustomBroadcastDate] = useState('Selasa, 10 November 2026');
+
+  const getTodayFormatted = () => {
+    return new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const getTomorrowFormatted = () => {
+    const tmr = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    return tmr.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const handleBroadcastTextChange = (text: string) => {
+    setRawBroadcastInput(text);
+    const detected = detectIndonesianDateFromText(text);
+    if (detected && detected.formatted) {
+      setCustomBroadcastDate(detected.formatted);
+    }
+  };
+
+  // Quick Edit Tanggal Langsung dari Header Dasbor
+  const handleQuickUpdateDashboardDate = (newDateStr: string) => {
+    if (activeSafetyAdvisory) {
+      const updatedAdvisory: SafetyAdvisory = {
+        ...activeSafetyAdvisory,
+        dateFormatted: newDateStr
+      };
+      saveSafetyAdvisory(updatedAdvisory);
+    }
+    showToast(`Tanggal dasbor diperbarui ke: ${newDateStr}`);
+  };
 
   // State Modal Share Link Publik
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -285,7 +316,7 @@ export const SituationalIntelligencePage: React.FC<SituationalIntelligencePagePr
     setTimeout(() => {
       try {
         const loggedCallsign = currentUser ? `${currentUser.callsign} (${currentUser.username})` : 'Bang Madi // Intel Nusantara Command';
-        const { advisory, extractedReports } = parseSmartBroadcastText(rawBroadcastInput, loggedCallsign);
+        const { advisory, extractedReports } = parseSmartBroadcastText(rawBroadcastInput, loggedCallsign, customBroadcastDate);
 
         // 1. Simpan Safety Advisory aktif (Poster Komando)
         saveSafetyAdvisory(advisory);
@@ -571,10 +602,28 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
         <div>
           <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Situasi Jakarta &amp; Unjuk Rasa<br />
-            <span className="text-cyan-400 font-bold text-base sm:text-xl lg:text-2xl flex items-center gap-2 mt-1">
-              <Calendar className="w-5 h-5 text-amber-400" />
-              <span>{displayActiveDate}</span>
-            </span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="text-cyan-400 font-bold text-base sm:text-xl lg:text-2xl flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-amber-400" />
+                <span>{displayActiveDate}</span>
+              </span>
+
+              {!isReadOnly && (
+                <button
+                  onClick={() => {
+                    const newDateStr = prompt('Ubah Tanggal Dasbor Situasional (Contoh: Rabu, 11 November 2026):', displayActiveDate);
+                    if (newDateStr && newDateStr.trim()) {
+                      handleQuickUpdateDashboardDate(newDateStr.trim());
+                    }
+                  }}
+                  className="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-cyan-950 text-zinc-400 hover:text-cyan-300 border border-zinc-700 text-[10px] font-mono flex items-center gap-1 transition-all"
+                  title="Ganti Tanggal Dasbor Secara Manual (1-Klik)"
+                >
+                  <Edit3 className="w-3 h-3 text-cyan-400" />
+                  <span>Ganti Tanggal</span>
+                </button>
+              )}
+            </div>
           </h1>
           <p className="text-[11px] sm:text-xs md:text-sm text-zinc-400 mt-1 max-w-4xl leading-relaxed">
             Gambaran situasional tingkat direksi atas {reports.length} titik unjuk rasa &amp; area potensi aksi di DKI Jakarta, sebaran geografis, puncak waktu, rute pergerakan massa, dan eksposur terhadap entitas korporasi.
@@ -1319,7 +1368,7 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
                   <button
                     key={preset.id}
                     type="button"
-                    onClick={() => setRawBroadcastInput(preset.rawText)}
+                    onClick={() => handleBroadcastTextChange(preset.rawText)}
                     className="p-2.5 rounded-xl bg-zinc-900/90 hover:bg-red-950/60 border border-zinc-800 hover:border-red-600 text-left transition-all group"
                   >
                     <div className="text-xs font-bold text-zinc-200 group-hover:text-red-300 truncate">
@@ -1343,12 +1392,65 @@ _Matajaga Research • Intelligence & Advisory & Intel Nusantara Command_`;
                   </span>
                 </label>
                 <textarea
-                  rows={9}
+                  rows={8}
                   placeholder="Tempelkan pesan broadcast WhatsApp lengkap di sini..."
                   value={rawBroadcastInput}
-                  onChange={(e) => setRawBroadcastInput(e.target.value)}
+                  onChange={(e) => handleBroadcastTextChange(e.target.value)}
                   className="w-full bg-[#05070c] border border-zinc-800 focus:border-red-500 rounded-xl p-3 text-zinc-200 placeholder-zinc-600 focus:outline-none text-xs font-sans leading-relaxed transition-colors"
                 />
+              </div>
+
+              {/* Panel Tanggal Otomatis & Cepat */}
+              <div className="bg-[#05070c] border border-zinc-800 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <label className="text-[11px] text-cyan-400 font-bold uppercase flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                    <span>TANGGAL AKSI / LAPORAN (OTOMATIS DARI TEKS):</span>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setCustomBroadcastDate(getTodayFormatted())}
+                      className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] text-zinc-300 hover:text-white transition-colors"
+                      title="Set ke hari ini"
+                    >
+                      Hari Ini
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCustomBroadcastDate(getTomorrowFormatted())}
+                      className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] text-zinc-300 hover:text-white transition-colors"
+                      title="Set ke besok"
+                    >
+                      Besok
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={customBroadcastDate}
+                    onChange={(e) => setCustomBroadcastDate(e.target.value)}
+                    placeholder="Contoh: Selasa, 10 November 2026"
+                    className="flex-1 bg-zinc-900 border border-zinc-700 focus:border-cyan-500 rounded-lg px-3 py-1.5 text-amber-300 font-bold text-xs focus:outline-none"
+                  />
+                  <input
+                    type="date"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const parts = e.target.value.split('-');
+                        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                        setCustomBroadcastDate(d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+                      }
+                    }}
+                    className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-zinc-300 text-xs cursor-pointer focus:outline-none"
+                    title="Pilih tanggal dari kalender"
+                  />
+                </div>
+                <p className="text-[10px] text-zinc-500 font-sans">
+                  💡 Tanggal ini terdeteksi otomatis dari teks dan langsung menjadi judul dasbor, banner poster himbauan, serta status data link yang dibagikan.
+                </p>
               </div>
 
               {/* Action Buttons */}
